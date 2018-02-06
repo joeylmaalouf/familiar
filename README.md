@@ -1,6 +1,10 @@
 # Familiar
 
+### Introduction
+
 Familiar is a web app for Pathfinder players, meant to assist them in their TTRPG adventures.
+
+### Features
 
 We plan to support a variety of features:
 
@@ -27,3 +31,11 @@ We plan to support a variety of features:
   - [ ] pregenerated layouts for common character types
   - [ ] dashboard customization and integration of tools as widgets
 - [ ] Feat/Condition/Other Lookup
+
+### Setup
+
+```
+cd backend
+npm install
+node app.js
+```

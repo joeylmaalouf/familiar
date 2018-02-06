@@ -1,0 +1,22 @@
+{
+  "name": "familiar",
+  "version": "1.0.0",
+  "description": "Familiar is a web app for Pathfinder players, meant to assist them in their TTRPG adventures.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeylmaalouf/familiar.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joeylmaalouf/familiar/issues"
+  },
+  "homepage": "https://github.com/joeylmaalouf/familiar#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
