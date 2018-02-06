@@ -62,3 +62,6 @@ typings/
 
 # compiled python
 .pyc
+
+# firebase service account key
+firebase_key.json
