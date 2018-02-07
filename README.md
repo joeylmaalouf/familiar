@@ -9,12 +9,12 @@ Familiar is a web app for Pathfinder players, meant to assist them in their TTRP
 We plan to support a variety of features:
 
 - [ ] Spell Tracker
-  - [ ] integration with spell/ability Lookup (below)
+  - [ ] integration with spell/ability lookup (below)
   - [ ] custom spell creation
   - [ ] support for prepared, spontaneous, and hybrid spell casting
   - [ ] quick metamagic application
 - [ ] Resource Point Tracker
-  - [ ] integration with spell/ability Lookup (below)
+  - [ ] integration with spell/ability lookup (below)
   - [ ] custom ability creation
 - [ ] Spell/Ability Lookup
   - [ ] categorical search/filter, more than just name
