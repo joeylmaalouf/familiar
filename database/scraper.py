@@ -6,7 +6,7 @@ SPELL_LIST_REGEX = r'<b><a href="(?P<link>.+?)">(?:<img.*?>\s?){0,2}(?P<name>.+?
 SPELL_REGEX = r'<b>Level</b> (?P<level>.+?)<' # TODO: update to pull more than just level
 
 
-def parse_powers(page_ext, list_regex,  power_regex, process_fn = None):
+def parse_powers(page_ext, list_regex,  power_regex = None, process_fn = None):
     """Parse a generic list of powers for the details of each one."""
     powers = []
     # first, get the contents of the page that lists the powers
@@ -17,7 +17,7 @@ def parse_powers(page_ext, list_regex,  power_regex, process_fn = None):
         # for each match, save the details we pulled from the list
         power = match.groupdict()
         # if the power has a link to its own page, go parse that
-        if ('link' in power):
+        if power_regex and ('link' in power):
             # get the contents of its info page
             power_page = requests.get(BASE_URL + power['link']).text
             # and look for the detailed information we want
@@ -26,7 +26,7 @@ def parse_powers(page_ext, list_regex,  power_regex, process_fn = None):
             # add this new information to what we collected from the list
             power.update(power_info)
         # if a processing function is supplied, run it on the power
-        if (process_fn):
+        if process_fn:
             power = process_fn(power)
         # and put the parsed power in the list to be returned
         powers.append(power)
