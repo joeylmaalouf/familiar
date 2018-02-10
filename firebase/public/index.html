@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Welcome to Firebase Hosting</title>
 
+    <!-- Firebase UI -->
+    <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
+
     <!-- update the version number as needed -->
     <script defer src="/__/firebase/4.9.1/firebase-app.js"></script>
     <!-- include only the Firebase features as you need -->
@@ -36,6 +40,8 @@
       <h1>Firebase Hosting Setup Complete</h1>
       <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
       <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+      <div id="firebaseui-auth-container"></div>
+      <div id="loader">Loading...</div>
     </div>
     <p id="load">Firebase SDK Loading&hellip;</p>
 
@@ -59,6 +65,45 @@
           console.error(e);
           document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
         }
+
+        // Initialize the FirebaseUI Widget using Firebase.
+        var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+        ui.start('#firebaseui-auth-container', {
+          signInOptions: [
+            firebase.auth.EmailAuthProvider.PROVIDER_ID
+          ],
+          // Other config options...
+        });
+
+
+        var uiConfig = {
+          callbacks: {
+            signInSuccess: function(currentUser, credential, redirectUrl) {
+              // User successfully signed in.
+              // Return type determines whether we continue the redirect automatically
+              // or whether we leave that to developer to handle.
+              return true;
+            },
+            uiShown: function() {
+              // The widget is rendered.
+              // Hide the loader.
+              document.getElementById('loader').style.display = 'none';
+            }
+          },
+          // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+          signInFlow: 'popup',
+          signInSuccessUrl: '<url-to-redirect-to-on-success>',
+          signInOptions: [
+            // Leave the lines as is for the providers you want to offer your users.
+            firebase.auth.EmailAuthProvider.PROVIDER_ID
+          ],
+          // Terms of service url.
+          tosUrl: '<your-tos-url>'
+        };
+
+        // The start method will wait until the DOM is loaded.
+        ui.start('#firebaseui-auth-container', uiConfig);
       });
     </script>
   </body>
