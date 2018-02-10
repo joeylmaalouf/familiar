@@ -9,15 +9,13 @@ const app = express();
 admin.initializeApp(functions.config().firebase);
 var db = admin.firestore();
 
-// Allow cross-origin requests
-app.use(cors({origin: true}));
-
-app.get('/', (request, response) => {
+exports.helloWorld = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
-app.get('/spells', (request, response) => {
-  db.collection("spells").get()
+exports.allSpells = functions.https.onRequest((request, response) => {
+  if (request.method === "GET") {
+    db.collection("spells").get()
     .then(snapshot => {
       var all_spells = [];
       snapshot.forEach(doc => {
@@ -29,18 +27,15 @@ app.get('/spells', (request, response) => {
       return response.send(all_spells);
     })
     .catch(err => {
-      console.error(err);
+        console.error(err);
     });
-});
-
-app.post('/spells', (request, response) => {
-  var spells = request.body.spells;
-  spells.forEach(spell => {
-    db.collection("spells").add({
-      name: spell.name,
-      level: spell.level
+  }
+  else if (request.method === "POST") {
+    request.body.spells.forEach(spell => {
+      db.collection("spells").add({
+        name: spell.name,
+        level: spell.level
+      });
     });
-  });
+  }
 });
-
-exports.widgets = functions.https.onRequest(app);
