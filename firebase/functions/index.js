@@ -13,7 +13,7 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
-exports.allSpells = functions.https.onRequest((request, response) => {
+exports.spells = functions.https.onRequest((request, response) => {
   if (request.method === "GET") {
     db.collection("spells").get()
     .then(snapshot => {
