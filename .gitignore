@@ -61,4 +61,7 @@ typings/
 .next
 
 # compiled python
-.pyc
+*.pyc
+
+# scraped json
+database/scripts/*.json
