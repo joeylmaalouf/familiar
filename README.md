@@ -34,8 +34,7 @@ We plan to support a variety of features:
 
 ### Setup
 
-```
-cd backend
-npm install
-node app.js
-```
+Development Setup
+Create a cloud-based firebase project [here](https://console.firebase.google.com/)
+In ./firebase, execute `firebase use --add <project key>`
+To deploy to your project, simply `firebase deploy`
