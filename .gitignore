@@ -65,3 +65,9 @@ typings/
 
 # scraped json
 database/scripts/*.json
+
+# firebase service account key
+firebase_key.json
+
+# package lock files
+package-lock.json
