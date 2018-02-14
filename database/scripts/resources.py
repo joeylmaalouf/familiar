@@ -44,11 +44,6 @@ SPELL_REGEXES = [
 def process_spell(spell):
     """ Processes spell data into a more usable format. """
 
-    # strip any leading and trailing whitespace in all of our spell's properties
-    for prop in spell:
-        if spell[prop]:
-            spell[prop] = spell[prop].strip()
-
     # turn a spell level string into a dict of classes and spell levels
     level_regex = re.compile(r'(?P<class0>.+?)(?:/(?P<class1>.+))? (?P<level>\d+)')
     level_dict = {}
@@ -98,11 +93,6 @@ ARCANE_DISCOVERY_REGEX = r'<td>\s*<span.*?><b>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?
 def process_arcane_discovery(arcane_discovery):
     """ Processes arcane discovery data into a more usable format. """
 
-    # strip any leading and trailing whitespace in all of our arcane discovery's properties
-    for prop in arcane_discovery:
-        if arcane_discovery[prop]:
-            arcane_discovery[prop] = arcane_discovery[prop].strip()
-
     # turn a restriction sentence into a dict of restriction types
     restriction = arcane_discovery['restriction']
     if restriction:
@@ -130,6 +120,23 @@ def process_arcane_discovery(arcane_discovery):
 # ------------------------------------------------------------------------------
 
 HEX_DEFAULTS = {
+    'category'   : None,
+    'description': None,
+    'name'       : None,
+    'spectype'   : None
 }
 
-HEX_REGEX = r''
+HEX_REGEX = r'<td>\s*<span id="(?P<category>.*?)".*?><i>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?:\((?P<spectype>Ex|Su|Sp)\))?</i>.*?\): (?P<description>.*?)<hr /></span>\s*</td>'
+
+def process_hex(hex):
+    """ Processes arcane discovery data into a more usable format. """
+
+    # turn a hex section id into a hex category
+    category = hex['category'].split('_')[2]
+    hex['category'] = {
+        'DataListTypes': 'common',
+        'DataList1'    : 'major',
+        'DataList2'    : 'grand'
+    }[category]
+
+    return hex

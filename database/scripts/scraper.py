@@ -37,6 +37,11 @@ def parse_powers(page_ext, list_regex, power_default = None, power_regexes = Non
                     # add this new information to what we collected from the list
                     power.update(power_info)
 
+        # strip any leading and trailing whitespace in all of our power's properties
+        for prop in power:
+            if power[prop]:
+                power[prop] = power[prop].strip()
+
         # if a processing function is supplied, run it on the power
         if process_fn:
             power = process_fn(power)
@@ -65,8 +70,8 @@ def main():
     save_json(arcane_discoveries, 'arcane_discoveries.json')
 
     # witch hexes
-    # hexes = parse_powers('WitchHexes.aspx', HEX_REGEX, HEX_DEFAULTS, None, None)
-    # save_json(hexes, 'hexes.json')
+    hexes = parse_powers('WitchHexes.aspx', HEX_REGEX, HEX_DEFAULTS, None, process_hex)
+    save_json(hexes, 'hexes.json')
 
 
 if __name__ == '__main__':
