@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Familiar</title>
     <base href="/">
+    <link rel="stylesheet" href="material.css">
     <link rel="stylesheet" href="style.css">
 
+    <script type="text/javascript" src="material.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -19,10 +21,16 @@
     <div id="message">
       <div id="file-chooser">
         <h3>Select your spells.json</h3>
-        <input id="jsonSelect" type="file">
-        <button id="submit">Submit</button>
+        <label class="input-custom-file mdl-button mdl-button--raised mdl-js-button mdl-button--colored">
+          Select File
+          <input id="jsonSelect" type="file">
+        </label>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="submit">Submit</button>
       </div>
-      <div id="preview"><h3>Spells to add:</h3><div id="preview-list"></div></div>
+      <div id="preview">
+        <h5 id="filename"></h5>
+        <div id="preview-list"></div>
+      </div>
       <img src="spinner.gif" alt="spinner" id="spinner">
       <p id="error"></p>
       <p id="invalidFiletype">Invalid Filetype, please select a .json</p>

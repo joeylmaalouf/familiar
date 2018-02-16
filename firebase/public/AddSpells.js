@@ -13,6 +13,7 @@ $(document).ready(function() {
 
     var file = event.target.files[0];
     if (file.name.substr((file.name.lastIndexOf('.') + 1)) === "json") {
+      $("#filename").text(file.name);
       spell_data = file;
       var reader = new FileReader();
       reader.onload = handleJSON;
