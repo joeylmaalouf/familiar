@@ -31,11 +31,33 @@ exports.spells = functions.https.onRequest((request, response) => {
     });
   }
   else if (request.method === "POST") {
-    request.body.spells.forEach(spell => {
-      db.collection("spells").add({
-        name: spell.name,
-        level: spell.level
+    var spells = request.body.spells;
+    console.log(spells);
+    if (spells !== undefined) {
+      if (Array.isArray(spells)) {
+        spells.forEach(spell => {
+          addSpell(spell);
+        });
+      } else {
+        addSpell(spells);
+      }
+
+      response.json({
+        success: true,
+        error: ""
       });
-    });
+    } else {
+      response.json({
+        success: false,
+        error: "No spell data detected."
+      });
+    }
   }
 });
+
+function addSpell(spell) {
+  db.collection("spells").add({
+    name: spell.name,
+    level: spell.data.level
+  });
+}

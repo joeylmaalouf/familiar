@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Familiar</title>
+    <base href="/">
+    <link rel="stylesheet" href="style.css">
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="AddSpells.js"></script>
+  </head>
+
+  <body>
+    <div id="message">
+      <div id="file-chooser">
+        <h3>Select your spells.json</h3>
+        <input id="jsonSelect" type="file">
+        <button id="submit">Submit</button>
+      </div>
+      <div id="preview"><h3>Spells to add:</h3><div id="preview-list"></div></div>
+      <img src="spinner.gif" alt="spinner" id="spinner">
+      <p id="error"></p>
+      <p id="invalidFiletype">Invalid Filetype, please select a .json</p>
+    </div>
+  </body>
+</html>
