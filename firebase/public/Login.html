@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Familiar</title>
+
+    <!-- Firebase UI -->
+    <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
 
     <!-- Material Design Lite -->
     <script type="text/javascript" src="material.min.js"></script>
@@ -22,9 +25,9 @@
 
     <!-- Custom -->
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="index.js"></script>
-
+    <script type="text/javascript" src="Login.js"></script>
   </head>
+
   <body>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
       <div class="mdl-layout__drawer">
@@ -37,8 +40,8 @@
       </div>
       <main class="mdl-layout__content">
         <div class="page-content">
-          <h2>Welcome to Familiar</h2>
-          <p id="load">Firebase SDK Loading&hellip;</p>
+          <div id="firebaseui-auth-container"></div>
+          <div id="loader">Loading...</div>
         </div>
       </main>
     </div>

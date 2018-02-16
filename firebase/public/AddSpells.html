@@ -4,36 +4,52 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Familiar</title>
-    <base href="/">
+
+    <!-- Material Design Lite -->
+    <script type="text/javascript" src="material.min.js"></script>
     <link rel="stylesheet" href="material.css">
-    <link rel="stylesheet" href="style.css">
 
     <script type="text/javascript" src="material.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
       crossorigin="anonymous"></script>
+
+    <!-- Custom -->
+    <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="utils.js"></script>
     <script type="text/javascript" src="AddSpells.js"></script>
   </head>
 
   <body>
-    <div id="message">
-      <div id="file-chooser">
-        <h3>Select your spells.json</h3>
-        <label class="input-custom-file mdl-button mdl-button--raised mdl-js-button mdl-button--colored">
-          Select File
-          <input id="jsonSelect" type="file">
-        </label>
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="submit">Submit</button>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Familiar</span>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" href="/">Home</a>
+          <a class="mdl-navigation__link" href="AddSpells.html">Add Spells</a>
+          <a class="mdl-navigation__link" href="Login.html">Login</a>
+        </nav>
       </div>
-      <div id="preview">
-        <h5 id="filename"></h5>
-        <div id="preview-list"></div>
-      </div>
-      <img src="spinner.gif" alt="spinner" id="spinner">
-      <p id="error"></p>
-      <p id="invalidFiletype">Invalid Filetype, please select a .json</p>
+      <main class="mdl-layout__content">
+        <div class="page-content">
+          <div id="file-chooser">
+            <h3>Select your spells.json</h3>
+            <label class="input-custom-file mdl-button mdl-button--raised mdl-js-button mdl-button--colored">
+              Select File
+              <input id="jsonSelect" type="file">
+            </label>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="submit">Submit</button>
+          </div>
+          <div id="preview">
+            <h5 id="filename"></h5>
+            <div id="preview-list"></div>
+          </div>
+          <img src="spinner.gif" alt="spinner" id="spinner">
+          <p id="error"></p>
+          <p id="invalidFiletype">Invalid Filetype, please select a .json</p>
+        </div>
+      </main>
     </div>
   </body>
 </html>
