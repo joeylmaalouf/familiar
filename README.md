@@ -1,8 +1,10 @@
 # Familiar
 
+
 ### Introduction
 
 Familiar is a web app for Pathfinder players, meant to assist them in their TTRPG adventures.
+
 
 ### Features
 
@@ -21,20 +23,33 @@ We plan to support a variety of features:
     - [ ] class list
     - [ ] level
     - [ ] school/domain/subdomain/element
+    - [ ] casting time
+    - [ ] components
+    - [ ] duration
+    - [ ] range
+    - [ ] target/area/effect
+    - [ ] saving throw/spell resistance
 - [ ] Creature Lookup
   - [ ] search by property or statistics
     - [ ] CR
+    - [ ] size
+    - [ ] movement
+    - [ ] environment
+    - [ ] alignment
+    - [ ] type/subtype
     - [ ] abilities
-    - [ ] other properties
+    - [ ] other properties?
   - [ ] template application
 - [ ] User Dashboard
   - [ ] pregenerated layouts for common character types
   - [ ] dashboard customization and integration of tools as widgets
 - [ ] Feat/Condition/Other Lookup
 
+
 ### Setup
 
-Development Setup
-Create a cloud-based firebase project [here](https://console.firebase.google.com/)
-In ./firebase, execute `firebase use --add <project key>`
-To deploy to your project, simply `firebase deploy`
+Developer Setup:
+
+- Create a cloud-based firebase project [here](https://console.firebase.google.com/).
+- In `familiar/firebase`, execute `firebase use --add <project key>`.
+- To deploy, simply run `firebase deploy`!
