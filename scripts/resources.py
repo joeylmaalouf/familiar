@@ -1,14 +1,14 @@
 import re
 
 # thanks, AoN!
-BASE_URL = r'http://archivesofnethys.com/'
+BASE_URL = r'https://www.archivesofnethys.com/'
 
 
 # ------------------------------------------------------------------------------
 # all spells
 # ------------------------------------------------------------------------------
 
-SPELL_DEFAULTS = {
+spell_defaults = {
     'casttime'   : None,
     'components' : None,
     'duration'   : None,
@@ -25,9 +25,9 @@ SPELL_DEFAULTS = {
     'target'     : None
 }
 
-SPELL_LIST_REGEX = r'<b><a href="(?P<link>.*?)">(?:<img.*?>\s?){0,2}(?P<name>.*?)(?:</b><sup>.</sup><b>)*</a></b>: (?P<shortdesc>.*?)<br />'
+spell_list_regex = r'<b><a href="(?P<link>.*?)">(?:<img.*?>\s?)*(?P<name>.*?)(?:</b><sup>.</sup><b>)*</a></b>: (?P<shortdesc>.*?)<br />'
 
-SPELL_REGEXES = [
+spell_regexes = [
     r'<h1 class="title">(?:<img.*?>)* ?(?P<name>.*?)</h1>',
     r'<b>School</b> (?P<school>.*?)(?:;|<)',
     r'<b>Level</b> (?P<level>.*?)(?: (?<=\d )\((?P<restriction>.*?)\))?<',
@@ -43,7 +43,6 @@ SPELL_REGEXES = [
 
 def process_spell(spell):
     """ Processes spell data into a more usable format. """
-
     # turn a spell level string into a dict of classes and spell levels
     level_regex = re.compile(r'(?P<class0>.+?)(?:/(?P<class1>.+))? (?P<level>\d+)')
     level_dict = {}
@@ -55,7 +54,6 @@ def process_spell(spell):
             if match['class1']:
                 level_dict[match['class1']] = int(match['level'])
     spell['level'] = level_dict
-
     # turn a components string into a list of components and a dict of any accompanying details
     component_split_regex = re.compile(r', (?![^()]*\))')
     component_regex = re.compile(r'(?P<type>\w+)(?: \((?P<details>.+?)\))?')
@@ -73,27 +71,34 @@ def process_spell(spell):
         'list': components_list,
         'details': components_dict
     }
-
     return spell
+
+SPELL = {
+    'defaults'     : spell_defaults,
+    'filename'     : 'spells',
+    'list_regex'   : spell_list_regex,
+    'path'         : 'Spells.aspx?Class=All',
+    'power_regexes': spell_regexes,
+    'process_fn'   : process_spell
+}
 
 
 # ------------------------------------------------------------------------------
 # wizard arcane discoveries
 # ------------------------------------------------------------------------------
 
-ARCANE_DISCOVERY_DEFAULTS = {
+arcane_discovery_defaults = {
     'description': None,
     'name'       : None,
     'restriction': None,
     'spectype'   : None
 }
 
-ARCANE_DISCOVERY_REGEX = r'<td>\s*<span.*?><b>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?:\((?P<spectype>Ex|Su|Sp)\))?</b>.*?\): (?P<description>.*?(?P<restriction>You must.*?to (select|choose) this discovery\.)?)<hr /></span>\s*</td>'
+arcane_discovery_regex = r'<td>\s*<span.*?><b>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?:\((?P<spectype>Ex|Su|Sp)\))?</b>.*?\): (?P<description>.*?(?P<restriction>You must.*?to (?:select|choose) this (?:arcane )?discovery\.).*?)<hr /></span>\s*</td>'
 
 def process_arcane_discovery(arcane_discovery):
     """ Processes arcane discovery data into a more usable format. """
-
-    # turn a restriction sentence into a dict of restriction types
+    # turn the restriction sentence into a dict of restriction types
     restriction = arcane_discovery['restriction']
     if restriction:
         restriction_dict = {
@@ -111,26 +116,33 @@ def process_arcane_discovery(arcane_discovery):
         if restriction_dict['level']:
             restriction_dict['level'] = int(restriction_dict['level'])
         arcane_discovery['restriction'] = restriction_dict
-
     return arcane_discovery
+
+ARCANE_DISCOVERY = {
+    'defaults'     : arcane_discovery_defaults,
+    'filename'     : 'arcane_discoveries',
+    'list_regex'   : arcane_discovery_regex,
+    'path'         : 'WizardArcaneDiscoveries.aspx',
+    'power_regexes': None,
+    'process_fn'   : process_arcane_discovery
+}
 
 
 # ------------------------------------------------------------------------------
 # witch hexes
 # ------------------------------------------------------------------------------
 
-HEX_DEFAULTS = {
+hex_defaults = {
     'category'   : None,
     'description': None,
     'name'       : None,
     'spectype'   : None
 }
 
-HEX_REGEX = r'<td>\s*<span id="(?P<category>.*?)".*?><i>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?:\((?P<spectype>Ex|Su|Sp)\))?</i>.*?\): (?P<description>.*?)<hr /></span>\s*</td>'
+hex_regex = r'<td>\s*<span id="(?P<category>.*?)".*?><i>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?:\((?P<spectype>Ex|Su|Sp)\))?</i>.*?\): (?P<description>.*?)<hr /></span>\s*</td>'
 
 def process_hex(hex):
-    """ Processes arcane discovery data into a more usable format. """
-
+    """ Processes hex data into a more usable format. """
     # turn a hex section id into a hex category
     category = hex['category'].split('_')[2]
     hex['category'] = {
@@ -138,5 +150,56 @@ def process_hex(hex):
         'DataList1'    : 'major',
         'DataList2'    : 'grand'
     }[category]
-
     return hex
+
+HEX = {
+    'defaults'     : hex_defaults,
+    'filename'     : 'hexes',
+    'list_regex'   : hex_regex,
+    'path'         : 'WitchHexes.aspx',
+    'power_regexes': None,
+    'process_fn'   : process_hex
+}
+
+
+# ------------------------------------------------------------------------------
+# cleric domains
+# ------------------------------------------------------------------------------
+
+domain_defaults = {
+    'deities'     : None,
+    'link'        : None,
+    'name'        : None,
+    'powers'      : None,
+    'spells'      : None,
+    'subdomains'  : None,
+    'superdomains': None
+}
+
+domain_regex = r'<tr.*?href="(?P<link>.*?)">(?:<img.*?>\s?)?(?P<name>.*?)</.*?<td>(?P<subdomains>.*?)</td><td>(?P<deities>.*?)</td>\s*</tr>'
+
+domain_regexes = [
+]
+
+def process_domain(domain):
+    """ Processes domain data into a more usable format. """
+    # turn a subdomain string into a list of subdomains
+    subdomains = domain['subdomains']
+    subdomains_regex = re.compile(r'.*?>(?P<list>.*?)<.*?')
+    results = subdomains_regex.search(subdomains)
+    if results:
+        domain['subdomains'] = results.groupdict()['list'].split(', ')
+    # turn a deities string into a list of deities
+    deities = domain['deities']
+    deities_regex = re.compile(r'<a.*?>(?P<list>.*?)</a>')
+    domain['deities'] = deities_regex.findall(deities)
+    return domain
+
+DOMAIN = {
+    'defaults'     : domain_defaults,
+    'filename'     : 'domains',
+    'list_regex'   : domain_regex,
+    'path'         : 'ClericDomains.aspx',
+    'power_regexes': None,
+    'process_fn'   : process_domain
+}
