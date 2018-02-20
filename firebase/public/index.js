@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
   try {
     let app = firebase.app();
     let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
