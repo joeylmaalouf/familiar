@@ -1,3 +1,18 @@
 label.input-custom-file input[type=file] {
   display: none;
 }
+
+.spellbook-card {
+  background-color: #3E4EB8;
+  width: 160px;
+  height: 160px;
+  min-height: 160px;
+  margin-right: 10px;
+}
+
+.spellbook-card--title {
+  color: #fff;
+  text-align: center;
+  font-size: 16pt;
+  line-height: 160px;
+}

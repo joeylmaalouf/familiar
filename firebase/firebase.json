@@ -19,6 +19,10 @@
       {
         "source": "/spells",
         "function": "spells"
+      },
+      {
+        "source": "/spellbooks/**",
+        "function": "main"
       }
     ]
   },
