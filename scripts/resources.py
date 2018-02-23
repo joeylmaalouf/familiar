@@ -167,32 +167,76 @@ HEX = {
 # ------------------------------------------------------------------------------
 
 domain_defaults = {
+    'deities'   : None,
+    'link'      : None,
+    'name'      : None,
+    'powers'    : None,
+    'spells'    : None,
+    'subdomains': None
+}
+
+subdomain_defaults = {
     'deities'     : None,
-    'link'        : None,
     'name'        : None,
     'powers'      : None,
     'spells'      : None,
-    'subdomains'  : None,
     'superdomains': None
 }
 
 domain_regex = r'<tr.*?href="(?P<link>.*?)">(?:<img.*?>\s?)?(?P<name>.*?)</.*?<td>(?P<subdomains>.*?)</td><td>(?P<deities>.*?)</td>\s*</tr>'
 
 domain_regexes = [
+    r'Granted Powers</b>: (?P<powers>.*?)(?:<br />)*<b>Domain Spells',
+    r'Domain Spells</b>: (?P<spells>.*?)\.',
+    r'<br />(?P<sdtext><h2.*?/h2>.*?)(?:<h1|</span>)'
 ]
 
 def process_domain(domain):
     """ Processes domain data into a more usable format. """
+    domain = _process_domain(domain, False)
     # turn a subdomain string into a list of subdomains
     subdomains = domain['subdomains']
     subdomains_regex = re.compile(r'.*?>(?P<list>.*?)<.*?')
     results = subdomains_regex.search(subdomains)
     if results:
-        domain['subdomains'] = results.groupdict()['list'].split(', ')
+        subdomains_dict = {}
+        subdomain_list = results.groupdict()['list'].split(', ')
+        for subdomain_name in subdomain_list:
+            subdomain_regex = re.compile(r'> ?' + subdomain_name + r' Subdomain</.*?<b>Associated Domain\(s\)</b>: (?P<superdomains>.*?)(?:<br />)*<b>Associated Deities</b>: (?P<deities>.*?)(?:<br />)*<b>Replacement Powers?</b>: (?P<powers>.*?)(?:<br />)*<b>Replacement Domain Spells</b>: (?P<spells>.*?)\..*?(?:<(?:h1|h2)|</span>|<br />)')
+            subdomain = subdomain_defaults.copy()
+            subdomain['name'] = subdomain_name
+            match = subdomain_regex.search(domain['sdtext'])
+            if match:
+                subdomain.update(match.groupdict())
+                subdomain['superdomains'] = subdomain['superdomains'].split(', ')
+                subdomain = _process_domain(subdomain, True)
+            subdomains_dict[subdomain_name] = subdomain
+        domain['subdomains'] = subdomains_dict
+    del(domain['sdtext'])
+    return domain
+
+def _process_domain(domain, is_subdomain = False):
+    """ process_domain helper function. """
     # turn a deities string into a list of deities
     deities = domain['deities']
-    deities_regex = re.compile(r'<a.*?>(?P<list>.*?)</a>')
+    deities_regex = re.compile(r'<a.*?>(?P<deity>.*?)</a>')
     domain['deities'] = deities_regex.findall(deities)
+    # turn a powers string into a list of powers
+    powers = domain['powers'].replace('<i>', '').replace('</i>', '').split('<br /><br />')
+    # if it's a normal domain, ignore the flavor text
+    # if it's a subdomain, keep the replacement notice and attach it to the first power
+    # (which should be the only one, but we have support for more in the list just in case)
+    if is_subdomain:
+        domain['powers'] = [powers[0] + '<br />' + powers[1]] + powers[2:]
+    else:
+        domain['powers'] = powers[1:]
+    # turn a spells string into a list of spells, with level and name split on the emdash
+    spells = domain['spells'].replace('<i>', '').replace('</i>', '').split(', ')
+    spells_dict = {}
+    for spell in spells:
+        spell_data = spell.replace(u'\u2014', '-').split('-', 1)
+        spells_dict[spell_data[0].strip()] = spell_data[1].strip()
+    domain['spells'] = spells_dict
     return domain
 
 DOMAIN = {
@@ -200,6 +244,6 @@ DOMAIN = {
     'filename'     : 'domains',
     'list_regex'   : domain_regex,
     'path'         : 'ClericDomains.aspx',
-    'power_regexes': None,
+    'power_regexes': domain_regexes,
     'process_fn'   : process_domain
 }
