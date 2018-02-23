@@ -3,27 +3,32 @@ import json
 import re
 import requests
 
-from resources import *
+from resources import BASE_URL, ARCANE_DISCOVERY, DOMAIN, HEX, SPELL
 
 
-def parse_powers(page_ext, list_regex, power_default = None, power_regexes = None, process_fn = None):
+def read_link(path):
+    """ Read the contents of a page on the base site and strip any newlines. """
+    return requests.get(BASE_URL + path).text.replace('\n', '').replace('\r', '')
+
+
+def parse_powers(path, list_regex, power_defaults = None, power_regexes = None, process_fn = None):
     """ Parse a generic list of powers for the details of each one. """
     powers = []
 
     # first, get the contents of the page that lists the powers
-    list_page = requests.get(BASE_URL + page_ext).text.replace('\n', '').replace('\r', '')
+    list_page = read_link(path)
     # and look through them for entries that match our expression
     list_re = re.compile(list_regex)
     for match in list_re.finditer(list_page):
         # for each match, save the details we pulled from the list
         # (overwriting some of the default values if any are provided)
-        power = copy.deepcopy(power_default) if power_default else {}
+        power = copy.deepcopy(power_defaults) if power_defaults else {}
         power.update(match.groupdict())
 
         # if the power has a link to its own page, go parse that
         if power_regexes and ('link' in power):
             # get the contents of its info page
-            power_page = requests.get(BASE_URL + power['link']).text.replace('\n', '').replace('\r', '')
+            power_page = read_link(power['link'])
             # make sure we can process multiple queries
             if isinstance(power_regexes, str):
                 power_regexes = [power_regexes]
@@ -51,27 +56,24 @@ def parse_powers(page_ext, list_regex, power_default = None, power_regexes = Non
     return powers
 
 
-def save_json(json_data, filename):
+def save_json(json_data, filename, directory = 'data/'):
     """ Write our parsed data to a json file for importing into the database. """
-    with open(filename, 'w') as outfile:
+    with open(directory + filename + '.json', 'w') as outfile:
         data_string = json.dumps(json_data, sort_keys = True, indent = 4, ensure_ascii = False).encode('utf-8')
         outfile.write(data_string)
 
 
 def main():
     """ Runs the main parsing function on each list of powers and saves the resulting data. """
-
-    # all spells
-    spells = parse_powers('Spells.aspx?Class=All', SPELL_LIST_REGEX, SPELL_DEFAULTS, SPELL_REGEXES, process_spell)
-    save_json(spells, 'spells.json')
-
-    # wizard arcane discoveries
-    arcane_discoveries = parse_powers('WizardArcaneDiscoveries.aspx', ARCANE_DISCOVERY_REGEX, ARCANE_DISCOVERY_DEFAULTS, None, process_arcane_discovery)
-    save_json(arcane_discoveries, 'arcane_discoveries.json')
-
-    # witch hexes
-    hexes = parse_powers('WitchHexes.aspx', HEX_REGEX, HEX_DEFAULTS, None, process_hex)
-    save_json(hexes, 'hexes.json')
+    for power_type in [ARCANE_DISCOVERY, DOMAIN, HEX, SPELL]:
+        powers = parse_powers(
+            power_type['path'],
+            power_type['list_regex'],
+            power_type['defaults'],
+            power_type['power_regexes'],
+            power_type['process_fn']
+        )
+        save_json(powers, power_type['filename'])
 
 
 if __name__ == '__main__':
