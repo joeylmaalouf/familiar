@@ -58,32 +58,6 @@ const main = express();
 main.use('/spellbooks', spellbooksApp);
 exports.main = functions.https.onRequest(main);
 
-// exports.spellbooks = functions.https.onRequest((request, response) => {
-//   var user = RequestAuth(request);
-//   if (!user) {
-//     res.status(403).send('Unauthorized');
-//   }
-
-//   if (request.method === "GET") {
-//     db.collection("users").doc(user.uid).collection("spellbooks").get()
-//     .then(snapshot => {
-//       var all_books = [];
-//       snapshot.forEach(doc => {
-//         all_spells.push({
-//           name: doc.name
-//         });
-//       });
-//       return response.send(all_books);
-//     })
-//     .catch(err => {
-//       console.error(err);
-//     })
-//   }
-//   else if (request.method === "POST") {
-    
-//   }
-// });
-
 exports.spells = functions.https.onRequest((request, response) => {
   if (request.method === "GET") {
     db.collection("spells").get()
