@@ -3,7 +3,7 @@ import json
 import re
 import requests
 
-from resources import BASE_URL, ARCANE_DISCOVERY, DOMAIN, HEX, SPELL
+from resources import BASE_URL, ARCANA, ARCANE_DISCOVERY, DOMAIN, HEX, SPELL
 
 
 def read_link(path):
@@ -59,13 +59,17 @@ def parse_powers(path, list_regex, power_defaults = None, power_regexes = None, 
 def save_json(json_data, filename, directory = 'data/'):
     """ Write our parsed data to a json file for importing into the database. """
     with open(directory + filename + '.json', 'w') as outfile:
-        data_string = json.dumps(json_data, sort_keys = True, indent = 4, ensure_ascii = False).encode('utf-8')
+        data_string = json.dumps(
+            json_data, separators = (',', ': '),
+            sort_keys = True, indent = 4,
+            ensure_ascii = False
+        ).encode('utf-8')
         outfile.write(data_string)
 
 
 def main():
     """ Runs the main parsing function on each list of powers and saves the resulting data. """
-    for power_type in [ARCANE_DISCOVERY, DOMAIN, HEX, SPELL]:
+    for power_type in [ARCANA, ARCANE_DISCOVERY]: #, DOMAIN, HEX, SPELL]:
         powers = parse_powers(
             power_type['path'],
             power_type['list_regex'],

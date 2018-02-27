@@ -108,13 +108,14 @@ def process_arcane_discovery(arcane_discovery):
         }
         bond_regex = re.compile(r'must have chosen (?P<bond>.+?) as your arcane bond')
         feat_regex = re.compile(r'must have the (?P<feat>.+?) feat')
-        level_regex = re.compile(r'must be at least an? (?P<level>\d+?)[a-zA-Z]{2}-level wizard')
+        level_regex = re.compile(r'must be at least (?:an? )?(?P<level>\d+?)[a-zA-Z]{2}[ -]level(?: wizard)?')
         for regex in [bond_regex, feat_regex, level_regex]:
             results = regex.search(restriction)
             if results:
                 restriction_dict.update(results.groupdict())
-        if restriction_dict['level']:
-            restriction_dict['level'] = int(restriction_dict['level'])
+        level = restriction_dict['level']
+        if level:
+            restriction_dict['level'] = int(level)
         arcane_discovery['restriction'] = restriction_dict
     return arcane_discovery
 
@@ -246,4 +247,55 @@ DOMAIN = {
     'path'         : 'ClericDomains.aspx',
     'power_regexes': domain_regexes,
     'process_fn'   : process_domain
+}
+
+
+# ------------------------------------------------------------------------------
+# magus arcana
+# ------------------------------------------------------------------------------
+
+arcana_defaults = {
+    'description': None,
+    'name'       : None,
+    'restriction': None,
+    'spectype'   : None
+}
+
+arcana_regex = r'<td>\s*<span.*?><i>(?:<img.*?>\s*)*(?P<name>.*?)\s*(?:\((?P<spectype>Ex|Su|Sp)\))?</i>.*?\): (?P<description>.*?)<hr /></span>\s*</td>'
+
+def process_arcana(arcana):
+    """ Processes arcana data into a more usable format. """
+    # parse restriction from description
+    restriction_regex = re.compile(r'The magus (?P<restriction>must .*?) (?:before|to) (?:he )?select(?:s|ing)?(?: this (?:magus )?arcana\.)?')
+    results = restriction_regex.search(arcana['description'])
+    if results:
+        restriction = results.groupdict()['restriction']
+        if restriction:
+            restriction_dict = {
+                'arcana' : None,
+                'class'  : None,
+                'feature': None,
+                'level'  : None
+            }
+            arcana_regex = re.compile(r'have the (?P<arcana>.*?) (?:magus )?arcana')
+            class_regex = re.compile(r'(?:have|possess) levels in (?P<class>.*)')
+            feature_regex = re.compile(r'have (?P<feature>ranged spellstrike)')
+            level_regex = re.compile(r'be at least (?P<level>\d+?)[a-zA-Z]{2}[- ]level')
+            for regex in [arcana_regex, class_regex, feature_regex, level_regex]:
+                results = regex.search(restriction)
+                if results:
+                    restriction_dict.update(results.groupdict())
+            level = restriction_dict['level']
+            if level:
+                restriction_dict['level'] = int(level)
+            arcana['restriction'] = restriction_dict
+    return arcana
+
+ARCANA = {
+    'defaults'     : arcana_defaults,
+    'filename'     : 'arcana',
+    'list_regex'   : arcana_regex,
+    'path'         : 'MagusArcana.aspx',
+    'power_regexes': None,
+    'process_fn'   : process_arcana
 }
