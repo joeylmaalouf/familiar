@@ -1,17 +1,62 @@
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const express = require("express");
-const app = express();
+const cookieParser = require('cookie-parser')();
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
+const firebaseValidateMiddleware = (req, res, next) => {
+  if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
+    !req.cookies.__session) {
+    console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.',
+      'Make sure you authorize your request by providing the following HTTP header:',
+      'Authorization: Bearer <Firebase ID Token>',
+      'or by passing a "__session" cookie.');
+    res.status(403).send('Unauthorized');
+    return;
+  }
+
+  let idToken;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    console.log('Found "Authorization" header');
+    // Read the ID Token from the Authorization header.
+    idToken = req.headers.authorization.split('Bearer ')[1];
+  } else {
+    console.log('Found "__session" cookie');
+    // Read the ID Token from cookie.
+    idToken = req.cookies.__session;
+  }
+  admin.auth().verifyIdToken(idToken).then((decodedIdToken) => {
+    console.log('ID Token correctly decoded', decodedIdToken);
+    req.user = decodedIdToken;
+    return next();
+  }).catch((error) => {
+    console.error('Error while verifying Firebase ID token:', error);
+    res.status(403).send('Unauthorized');
+  });
+};
 
 admin.initializeApp(functions.config().firebase);
 var db = admin.firestore();
 
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send("Hello from Firebase!");
+const spellbooksApp = express();
+spellbooksApp.use(cookieParser);
+spellbooksApp.use(firebaseValidateMiddleware);
+spellbooksApp.get('/', (req, res) => {
+  res.send("Spellbooks get");
 });
+spellbooksApp.post('/', (req, res) => {
+  if (req.body) {
+    var spellbookName = req.body.name;
+    console.log("Creating Spellbook " + spellbookName + " for " + req.user.name);
+    db.collection("users").doc(req.user.uid).collection("spellbooks").add({name: spellbookName});
+    res.status(200).send(spellbookName);
+  } else {
+    res.status(400).send("No POST data sent");
+  }
+});
+
+const main = express();
+main.use('/spellbooks', spellbooksApp);
+exports.main = functions.https.onRequest(main);
 
 exports.spells = functions.https.onRequest((request, response) => {
   if (request.method === "GET") {
@@ -61,3 +106,7 @@ function addSpell(spell) {
     level: spell.data.level
   });
 }
+
+exports.createUserCollection = functions.auth.user().onCreate((event) => {
+  return db.collection('users').doc(event.data.uid).set({});
+});

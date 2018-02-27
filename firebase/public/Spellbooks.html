@@ -31,14 +31,14 @@
     <link rel="stylesheet" href="outline.css">
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="outline.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="Spellbooks.js"></script>
 
   </head>
   <body>
     <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
       <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title">Add Spells</span>
+          <span class="mdl-layout-title">Familiar</span>
           <div class="mdl-layout-spacer"></div>
           <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
             <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
@@ -90,10 +90,19 @@
       <main class="mdl-layout__content mdl-color--grey-100">
         <div class="mdl-grid">
           <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-            <h2>Welcome to Familiar</h2>
-          </div>
-          <div class="mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
-            <p id="load">Firebase SDK Loading&hellip;</p>
+            <h3 class="mdl-cell mdl-cell--12-col">Spellbooks</h3>
+            <div class="spellbook-card mdl-card mdl-shadow--4dp">
+              <span class="spellbook-card--title">Title</span>
+            </div>
+            <div class="spellbook-card mdl-card mdl-shadow--4dp">
+              <span class="spellbook-card--title">really-long-uninterrupted-spellbook-name</span>
+            </div>
+            <div class="spellbook-card mdl-card mdl-shadow--4dp">
+              <span class="spellbook-card--title">really long spellbook name but with spaces this time</span>
+            </div>
+            <div class="spellbook-card mdl-card mdl-shadow--4dp" id="add-spellbook">
+              <i class="material-icons spellbook-card--title md-64">add</i>
+            </div>
           </div>
         </div>
       </main>
