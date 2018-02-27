@@ -39,15 +39,19 @@ var db = admin.firestore();
 
 const spellbooksApp = express();
 spellbooksApp.use(cookieParser);
-// spellbooksApp.use(firebaseValidateMiddleware);
+spellbooksApp.use(firebaseValidateMiddleware);
 spellbooksApp.get('/', (req, res) => {
   res.send("Spellbooks get");
 });
 spellbooksApp.post('/', (req, res) => {
-  var spellbookName = req.body.name;
-  console.log("Creating Spellbook " + spellbookName + " for " + req.user.name);
-  db.collection("users").doc(req.user.uid).collection("spellbooks").add({name: spellbookName});
-  res.status(200).send(spellbookName);
+  if (req.body) {
+    var spellbookName = req.body.name;
+    console.log("Creating Spellbook " + spellbookName + " for " + req.user.name);
+    db.collection("users").doc(req.user.uid).collection("spellbooks").add({name: spellbookName});
+    res.status(200).send(spellbookName);
+  } else {
+    res.status(400).send("No POST data sent");
+  }
 });
 
 const main = express();
