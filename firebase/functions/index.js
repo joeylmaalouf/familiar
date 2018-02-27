@@ -134,5 +134,5 @@ function addSpell(spell) {
 }
 
 exports.createUserCollection = functions.auth.user().onCreate((event) => {
-  db.collection("users").doc(event.uid).set({displayName: event.displayName});
+  return db.collection('users').doc(event.data.uid).set({});
 });
