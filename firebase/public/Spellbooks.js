@@ -1,3 +1,5 @@
+var token;
+
 $(document).ready(function() {
   $("#add-spellbook").click(function() {
     createNewSpellbook("foobar");
@@ -5,14 +7,15 @@ $(document).ready(function() {
 
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
-      user.getIdToken().then(token => {
-        fetchUserSpellbooks(token);
+      user.getIdToken().then(myToken => {
+        token = myToken;
+        fetchUserSpellbooks();
       });
     }
   });
 });
 
-function fetchUserSpellbooks(token) {
+function fetchUserSpellbooks() {
   $("#spinner").show();
   $("#spellbooks-list").hide();
   $.ajax({
@@ -26,20 +29,37 @@ function fetchUserSpellbooks(token) {
 }
 
 function createNewSpellbook(name) {
-  firebase.auth().currentUser.getIdToken().then(function(token) {
-    $.ajax({
-      url: "/spellbooks/",
-      type: "post",
-      data: {name: name},
-      headers: {"Authorization": "Bearer " + token},
-      dataType: "json",
-      statusCode: {
-        200: function(data) {
-          console.log(data);
-          fetchUserSpellbooks(token);
-        }
+  $("#spinner").show();
+  $("#spellbooks-list").hide();
+  $.ajax({
+    url: "/spellbooks/",
+    type: "post",
+    data: {name: name},
+    headers: {"Authorization": "Bearer " + token},
+    dataType: "json",
+    statusCode: {
+      200: function(data) {
+        fetchUserSpellbooks();
       }
-    });
+    }
+  });
+}
+
+function deleteSpellBook(event) {
+  $("#spinner").show();
+  $("#spellbooks-list").hide();
+  var uid = $(event.target).parent().parent().parent().parent().attr("data-uid");
+  $.ajax({
+    url: "/spellbooks/",
+    type: "delete",
+    data: {uid: uid},
+    headers: {"Authorization": "Bearer " + token},
+    dataType: "json",
+    statusCode: {
+      200: function(data) {
+        fetchUserSpellbooks();
+      }
+    }
   });
 }
 
@@ -50,12 +70,13 @@ function createSpellBookTokens(books) {
     var card = $('<div />', {
       "class": 'delet-this spellbook-card mdl-card mdl-shadow--4dp'
     });
+    card.attr("data-uid", book.id);
 
     var title = $('<div />', {
       "class": 'mdl-card__title mdl-card--expand'
     });
     title.append($('<h4 />', {
-      text: book.name
+      text: book.data.name
     }));
     card.append(title);
 
@@ -73,6 +94,7 @@ function createSpellBookTokens(books) {
       style: 'color: #F44336',
       text: "delete"
     }));
+    delete_button.click(deleteSpellBook);
     card_actions.append($('<div />', {style: 'float: right;'}).append(delete_button));
     card.append(card_actions);
 
