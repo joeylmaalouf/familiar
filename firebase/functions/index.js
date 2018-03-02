@@ -41,14 +41,23 @@ const spellbooksApp = express();
 spellbooksApp.use(cookieParser);
 spellbooksApp.use(firebaseValidateMiddleware);
 spellbooksApp.get('/', (req, res) => {
-  res.send("Spellbooks get");
+  db.collection("users").doc(req.user.user_id).collection("spellbooks").get().then(snapshot => {
+    var spellbookNames = [];
+    snapshot.forEach(doc => {
+      spellbookNames.push(doc.data());
+    });
+    return res.send(spellbookNames);
+  }).catch(err => {
+    console.error(err);
+    res.status(500).send(err);
+  });
 });
 spellbooksApp.post('/', (req, res) => {
   if (req.body) {
     var spellbookName = req.body.name;
     console.log("Creating Spellbook " + spellbookName + " for " + req.user.name);
     db.collection("users").doc(req.user.uid).collection("spellbooks").add({name: spellbookName});
-    res.status(200).send(spellbookName);
+    res.send(spellbookName);
   } else {
     res.status(400).send("No POST data sent");
   }
@@ -73,6 +82,7 @@ exports.spells = functions.https.onRequest((request, response) => {
     })
     .catch(err => {
         console.error(err);
+        response.status(500).send(err);
     });
   }
   else if (request.method === "POST") {
