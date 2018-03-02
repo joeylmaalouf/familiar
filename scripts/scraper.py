@@ -3,20 +3,26 @@ import json
 import re
 import requests
 
-from resources import BASE_URL, ARCANE_DISCOVERY, DOMAIN, HEX, SPELL
+from resources import BASE_URL, ARCANA, ARCANE_DISCOVERY, DOMAIN, EXPLOIT, HEX, SPELL
 
 
-def read_link(path):
-    """ Read the contents of a page on the base site and strip any newlines. """
-    return requests.get(BASE_URL + path).text.replace('\n', '').replace('\r', '')
+def read_link(page_requests):
+    """ Read the contents of one or more page(s) on the base site and combine them (without any newlines). """
+    text = ''
+    for request in page_requests:
+        if request['method'] == 'GET':
+            text += requests.get(BASE_URL + request['path']).text
+        elif request['method'] == 'POST':
+            text += requests.post(BASE_URL + request['path'], data = request['params']).text
+    return text.replace('\n', '').replace('\r', '')
 
 
-def parse_powers(path, list_regex, power_defaults = None, power_regexes = None, process_fn = None):
+def parse_powers(page_requests, list_regex, power_defaults = None, power_regexes = None, process_fn = None):
     """ Parse a generic list of powers for the details of each one. """
     powers = []
 
     # first, get the contents of the page that lists the powers
-    list_page = read_link(path)
+    list_page = read_link(page_requests)
     # and look through them for entries that match our expression
     list_re = re.compile(list_regex)
     for match in list_re.finditer(list_page):
@@ -28,7 +34,7 @@ def parse_powers(path, list_regex, power_defaults = None, power_regexes = None, 
         # if the power has a link to its own page, go parse that
         if power_regexes and ('link' in power):
             # get the contents of its info page
-            power_page = read_link(power['link'])
+            power_page = read_link([{'path': power['link'], 'method': 'GET', 'params': {}}])
             # make sure we can process multiple queries
             if isinstance(power_regexes, str):
                 power_regexes = [power_regexes]
@@ -59,15 +65,19 @@ def parse_powers(path, list_regex, power_defaults = None, power_regexes = None, 
 def save_json(json_data, filename, directory = 'data/'):
     """ Write our parsed data to a json file for importing into the database. """
     with open(directory + filename + '.json', 'w') as outfile:
-        data_string = json.dumps(json_data, sort_keys = True, indent = 4, ensure_ascii = False).encode('utf-8')
+        data_string = json.dumps(
+            json_data, separators = (',', ': '),
+            sort_keys = True, indent = 4,
+            ensure_ascii = False
+        ).encode('utf-8')
         outfile.write(data_string)
 
 
 def main():
     """ Runs the main parsing function on each list of powers and saves the resulting data. """
-    for power_type in [ARCANE_DISCOVERY, DOMAIN, HEX, SPELL]:
+    for power_type in [ARCANA, ARCANE_DISCOVERY, DOMAIN, EXPLOIT, HEX, SPELL]:
         powers = parse_powers(
-            power_type['path'],
+            power_type['requests'],
             power_type['list_regex'],
             power_type['defaults'],
             power_type['power_regexes'],
