@@ -10,7 +10,7 @@ label.input-custom-file input[type=file] {
   margin-bottom: 5px;
 }
 
-.spellbook-card:hover {
+.spellbook-card--hover:hover {
   background-color: #B0BEC5;
   cursor: pointer;
 }

@@ -2,7 +2,26 @@ var token;
 
 $(document).ready(function() {
   $("#add-spellbook").click(function() {
-    createNewSpellbook("foobar");
+    $("#add-spellbook").hide();
+    $("#add-spellbook-name").show();
+  });
+
+  $("#add-spellbook-cancel").click(function() {
+    $("#add-spellbook").show();
+    $("#add-spellbook-name").hide();
+    $("#spellbook-input").val(null);
+  });
+
+  $("#add-spellbook-save").click(function() {
+    var name = $("#spellbook-input").val();
+    if (name) {
+      $("#add-spellbook").show();
+      $("#add-spellbook-name").hide();
+      createNewSpellbook(name);
+      $("#spellbook-input").val(null);
+    } else {
+      // Do nothing
+    }
   });
 
   firebase.auth().onAuthStateChanged(user => {
@@ -45,10 +64,11 @@ function createNewSpellbook(name) {
   });
 }
 
-function deleteSpellBook(event) {
+function deleteSpellbook(event) {
+  event.stopPropagation();
   $("#spinner").show();
   $("#spellbooks-list").hide();
-  var uid = $(event.target).parent().parent().parent().parent().attr("data-uid");
+  var uid = event.data.uid;
   $.ajax({
     url: "/spellbooks/",
     type: "delete",
@@ -68,9 +88,9 @@ function createSpellBookTokens(books) {
   $(".delet-this").remove();
   books.forEach(book => {
     var card = $('<div />', {
-      "class": 'delet-this spellbook-card mdl-card mdl-shadow--4dp'
+      "class": 'delet-this spellbook-card spellbook-card--hover mdl-card mdl-shadow--4dp'
     });
-    card.attr("data-uid", book.id);
+    card.click({uid: book.id}, viewSpellbook);
 
     var title = $('<div />', {
       "class": 'mdl-card__title mdl-card--expand'
@@ -94,7 +114,7 @@ function createSpellBookTokens(books) {
       style: 'color: #F44336',
       text: "delete"
     }));
-    delete_button.click(deleteSpellBook);
+    delete_button.click({uid: book.id}, deleteSpellbook);
     card_actions.append($('<div />', {style: 'float: right;'}).append(delete_button));
     card.append(card_actions);
 
@@ -103,4 +123,22 @@ function createSpellBookTokens(books) {
 
   $("#spinner").hide();
   $("#spellbooks-list").show();
+}
+
+function viewSpellbook(event) {
+  var uid = event.data.uid;
+  $("#spinner").show();
+  $("#spellbooks-list").hide();
+  $.ajax({
+    url: "/spellbooks/",
+    type: "get",
+    data: {uid: uid},
+    headers: {"Authorization": "Bearer " + token},
+    dataType: "json",
+    success: function(data) {
+      $("#spinner").hide();
+      $("#spellbooks-list").show();
+      console.log(data);
+    }
+  });
 }

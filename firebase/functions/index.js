@@ -6,30 +6,22 @@ const cookieParser = require('cookie-parser')();
 const firebaseValidateMiddleware = (req, res, next) => {
   if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
     !req.cookies.__session) {
-    console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.',
-      'Make sure you authorize your request by providing the following HTTP header:',
-      'Authorization: Bearer <Firebase ID Token>',
-      'or by passing a "__session" cookie.');
     res.status(403).send('Unauthorized');
     return;
   }
 
   let idToken;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-    console.log('Found "Authorization" header');
     // Read the ID Token from the Authorization header.
     idToken = req.headers.authorization.split('Bearer ')[1];
   } else {
-    console.log('Found "__session" cookie');
     // Read the ID Token from cookie.
     idToken = req.cookies.__session;
   }
   admin.auth().verifyIdToken(idToken).then((decodedIdToken) => {
-    console.log('ID Token correctly decoded', decodedIdToken);
     req.user = decodedIdToken;
     return next();
   }).catch((error) => {
-    console.error('Error while verifying Firebase ID token:', error);
     res.status(403).send('Unauthorized');
   });
 };
@@ -41,19 +33,32 @@ const spellbooksApp = express();
 spellbooksApp.use(cookieParser);
 spellbooksApp.use(firebaseValidateMiddleware);
 spellbooksApp.get('/', (req, res) => {
-  db.collection("users").doc(req.user.user_id).collection("spellbooks").get().then(snapshot => {
-    var spellbookNames = [];
-    snapshot.forEach(doc => {
-      spellbookNames.push({
-        id: doc.id,
-        data: doc.data()
-      });
+  if (req.query && req.query.uid) {
+    db.collection("users").doc(req.user.user_id).collection("spellbooks").doc(req.query.uid).get().then(doc => {
+      if (doc.exists) {
+        return res.send(doc.data());
+      } else {
+        return res.status(400).send("No spellbook with that id exists.");
+      }
+    }).catch(err => {
+      console.error(err);
+      res.status(500).send(err);
     });
-    return res.send(spellbookNames);
-  }).catch(err => {
-    console.error(err);
-    res.status(500).send(err);
-  });
+  } else {
+    db.collection("users").doc(req.user.user_id).collection("spellbooks").get().then(snapshot => {
+      var spellbookNames = [];
+      snapshot.forEach(doc => {
+        spellbookNames.push({
+          id: doc.id,
+          data: doc.data()
+        });
+      });
+      return res.send(spellbookNames);
+    }).catch(err => {
+      console.error(err);
+      res.status(500).send(err);
+    });
+  }
 });
 spellbooksApp.post('/', (req, res) => {
   if (req.body) {
