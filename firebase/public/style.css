@@ -20,3 +20,8 @@ label.input-custom-file input[type=file] {
   font-size: 16pt;
   line-height: 160px;
 }
+
+.tiny-button {
+  padding-left: 4px;
+  padding-right: 4px;
+}
