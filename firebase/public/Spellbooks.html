@@ -29,8 +29,10 @@
 
     <!-- Custom -->
     <link rel="stylesheet" href="outline.css">
+    <link rel="stylesheet" href="dialog-polyfill.css">
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="outline.js"></script>
+    <script type="text/javascript" src="dialog-polyfill.js"></script>
     <script type="text/javascript" src="Spellbooks.js"></script>
 
   </head>
@@ -121,7 +123,30 @@
             </div>
 
             <div class="mdl-cell mdl-cell--3-col">
-              <span>Spell Browser</span>
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="choose-class">
+                Wizard/Sourcerer
+              </button>
+              <dialog class="mdl-dialog" id="choose-class-dialog">
+                <h4 class="mdl-dialog__title">Choose spell lists</h4>
+                <div class="mdl-dialog__content">
+                  <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="icon-toggle-1">
+                    <input type="checkbox" id="icon-toggle-1" class="mdl-icon-toggle__input" checked>
+                    <i class="mdl-icon-toggle__label material-icons filled-label">label</i>
+                    <i class="mdl-icon-toggle__label material-icons empty-label">label_outline</i>
+                    <span class="class-select-labels">Wizard/Sourcerer</span>
+                  </label>
+                  <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="icon-toggle-2">
+                    <input type="checkbox" id="icon-toggle-2" class="mdl-icon-toggle__input">
+                    <i class="mdl-icon-toggle__label material-icons filled-label">label</i>
+                    <i class="mdl-icon-toggle__label material-icons empty-label">label_outline</i>
+                    <span class="class-select-labels">Cleric/Oracle</span>
+                  </label>
+                </div>
+                <div class="mdl-dialog__actions">
+                  <button type="button" class="mdl-button" id="ok-dialog">Ok</button>
+                  <button type="button" class="mdl-button" id="close-dialog">Cancel</button>
+                </div>
+              </dialog> 
             </div>
             <div class="mdl-cell mdl-cell--9-col mdl-grid">
               <div class="mdl-cell mdl-cell--12-col mdl-grid">

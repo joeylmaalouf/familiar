@@ -29,3 +29,10 @@ label.input-custom-file input[type=file] {
 .spellbook-spell-level {
   text-align: center;
 }
+
+.class-select-labels {
+  font-size: 15pt;
+  height: 32px;
+  line-height: 32px;
+  vertical-align: middle;
+}

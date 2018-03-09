@@ -1,6 +1,45 @@
 var token;
 
 $(document).ready(function() {
+  var dialog = document.querySelector("#choose-class-dialog");
+  var dialogButton = document.querySelector("#choose-class");
+
+  if (!dialog.showModal) {
+    dialogPolyfill.registerDialog(dialog);
+  }
+
+  dialogButton.addEventListener('click', function() {
+    dialog.showModal();
+  });
+
+  document.querySelector("#close-dialog").addEventListener('click', function() {
+    dialog.close();
+  });
+
+  document.querySelector("#ok-dialog").addEventListener('click', function() {
+    // save spell list selections
+    dialog.close();
+  });
+
+  $(".mdl-js-icon-toggle").each(function() {
+    if ($(this).find('input').is(':checked')) {
+      $(this).find('.filled-label').show();
+      $(this).find('.empty-label').hide();
+    } else {
+      $(this).find('.filled-label').hide();
+      $(this).find('.empty-label').show();
+    }
+    $(this).click(function() {
+      if ($(this).find('input').is(':checked')) {
+        $(this).find('.filled-label').show();
+        $(this).find('.empty-label').hide();
+      } else {
+        $(this).find('.filled-label').hide();
+        $(this).find('.empty-label').show();
+      }
+    });
+  });
+
   $("#add-spellbook").click(function() {
     $("#add-spellbook").hide();
     $("#add-spellbook-name").show();
