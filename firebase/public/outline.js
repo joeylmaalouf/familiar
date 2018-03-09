@@ -16,7 +16,6 @@ $(document).ready(function() {
       var uid = user.uid;
       var providerData = user.providerData;
       var token = user.getIdToken();
-      console.log(displayName, email, emailVerified, photoURL, isAnonymous, uid, providerData, token);
     } else {
       // User is signed out.
       window.location.replace("Login.html");
