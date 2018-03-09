@@ -138,6 +138,7 @@ function viewSpellbook(event) {
     success: function(data) {
       $("#spinner").hide();
       $("#spellbooks-list").show();
+      $("#spellbook-display").show();
       console.log(data);
     }
   });

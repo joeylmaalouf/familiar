@@ -25,3 +25,7 @@ label.input-custom-file input[type=file] {
   padding-left: 4px;
   padding-right: 4px;
 }
+
+.spellbook-spell-level {
+  text-align: center;
+}
