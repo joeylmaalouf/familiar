@@ -51,5 +51,8 @@ We plan to support a variety of features:
 Developer Setup:
 
 - Create a cloud-based firebase project [here](https://console.firebase.google.com/).
+- Install firebase tools with `npm install -g firebase-tools`.
+- Install the linter with `npm install -g eslint`.
+- In `familiar/firebase/functions`, execute `npm install`.
 - In `familiar/firebase`, execute `firebase use --add <project key>`.
 - To deploy, simply run `firebase deploy`!
