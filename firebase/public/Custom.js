@@ -39,7 +39,11 @@ $(document).ready(function() {
       .done((data) => {
         if (data["success"]) {
           $("[id^=spell-]").each((index, element) => {
-            $(element).val("");
+            element = $(element);
+            var parent = element.parent();
+            element.val("");
+            parent.removeClass("is-upgraded");
+            parent.removeClass("is-dirty");
           });
           showMessage("Success! Submitted custom spell.");
         }

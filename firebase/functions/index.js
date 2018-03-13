@@ -2,6 +2,10 @@ const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const express = require("express");
 const cookieParser = require('cookie-parser')();
+var bodyParser = require('body-parser');
+
+const customSpells = require('./customSpells.js');
+
 
 const firebaseValidateMiddleware = (req, res, next) => {
   if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
@@ -32,6 +36,16 @@ const firebaseValidateMiddleware = (req, res, next) => {
     console.error('Error while verifying Firebase ID token:', error);
     res.status(403).send('Unauthorized');
   });
+};
+
+const prepareApp = (app, validate) => {
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
+  app.use(cookieParser);
+  if (validate) {
+    app.use(firebaseValidateMiddleware);
+  }
+  return app;
 };
 
 admin.initializeApp(functions.config().firebase);
@@ -110,3 +124,7 @@ function addSpell(spell) {
 exports.createUserCollection = functions.auth.user().onCreate((event) => {
   return db.collection('users').doc(event.data.uid).set({});
 });
+
+const customSpellsApp = prepareApp(express(), false);
+customSpellsApp.post("/spells/custom", customSpells.add);
+exports.customSpells = functions.https.onRequest(customSpellsApp);
