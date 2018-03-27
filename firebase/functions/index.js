@@ -46,16 +46,24 @@ spellbooksApp.use(cookieParser);
 spellbooksApp.use(firebaseValidateMiddleware);
 spellbooksApp.get('/', (req, res) => {
   if (req.query && req.query.uid) {
-    db.collection("users").doc(req.user.user_id).collection("spellbooks").doc(req.query.uid).get().then(doc => {
-      if (doc.exists) {
-        return res.send(doc.data());
-      } else {
-        return res.status(400).send("No spellbook with that id exists.");
-      }
-    }).catch(err => {
-      console.error(err);
-      res.status(500).send(err);
-    });
+    db.collection("users").doc(req.user.user_id).collection("spellbooks").doc(req.query.uid).get()
+      .then(doc => {
+        if (doc.exists) {
+          getCollectionsOfDoc(
+            db.collection("users").doc(req.user.user_id).collection("spellbooks").doc(req.query.uid),
+            collections_data => {
+              collections_data["spellbook-data"] = doc.data();
+              res.send(collections_data);
+            });
+          return true;
+        } else {
+          return res.status(400).send("Could not find requested spellbook.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        return res.status(500).send("Error retrieving spellbook.");
+      });
   } else {
     db.collection("users").doc(req.user.user_id).collection("spellbooks").get().then(snapshot => {
       var spellbookNames = [];
@@ -94,11 +102,56 @@ spellbooksApp.delete('/', (req, res) => {
       return res.send(uid);
     }).catch(err => {
       console.error(err);
-      res.status(500).send(err);
+      return res.status(500).send(err);
     });
   } else {
-    res.status(400).send("No DELETE data sent");
+    return res.status(400).send("No DELETE data sent");
   }
+});
+spellbooksApp.post('/:uid', (req, res) => {
+  var spellbook_uid = req.params.uid;
+  var spells_collection = db.collection("users").doc(req.user.uid).collection("spellbooks").doc(spellbook_uid).collection("stored-spells");
+  var spells_to_add = req.body.spells || {};
+  var batch = db.batch();
+
+  // Update db to match state pushed by user
+  for (spell_uid in spells_to_add) {
+    if (spells_to_add.hasOwnProperty(spell_uid)) {
+      var set_doc = spells_collection.doc(spell_uid);
+      batch.set(set_doc, {
+        "uid": spell_uid,
+        "name": spells_to_add[spell_uid].name,
+        "count": spells_to_add[spell_uid].count,
+        "level": spells_to_add[spell_uid].level
+      });
+    }
+  }
+
+  // Delete spells which are not in the state pushed by the user
+  spells_collection.get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        if (!Object.keys(spells_to_add).includes(doc.get("uid"))) {
+          batch.delete(spells_collection.doc(doc.id));
+        }
+      });
+      return true;
+    })
+    .then(function () {
+      return batch.commit()
+        .then(batch_res => {
+          logUserAction(req.user, "Saved spellbook " + spellbook_uid);
+          return res.send("Spellbook saved");
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).send(err);
+        });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send(err);
+    });
 });
 
 const main = express();
@@ -148,7 +201,6 @@ exports.spells = functions.https.onRequest((request, response) => {
   }
   else if (request.method === "POST") {
     var spells = request.body.spells;
-    console.log(spells);
     if (spells !== undefined) {
       if (Array.isArray(spells)) {
         spells.forEach(spell => {
@@ -199,4 +251,40 @@ exports.customSpells = functions.https.onRequest(customSpellsApp);
 
 function logUserAction(user, msg) {
   console.log("[" + user.uid + " (" + user.name + "}] "  + msg);
+}
+
+function getCollectionsOfDoc(doc, callback) {
+  var res = {};
+  if (doc !== null) {
+    doc.getCollections()
+      .then(collections => {
+        if (collections.length) {
+          collections.forEach(collection => {
+            collection.get()
+              .then(snapshot => {
+                var docs = {};
+                snapshot.forEach(doc => {
+                  docs[doc.id] = doc.data();
+                });
+                res[collection.id] = docs;
+                callback(res);
+                return res;
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          });
+        } else {
+          return callback(res);
+        }
+        return res;
+      })
+      .catch(err => {
+        console.error(err);
+      });
+
+    return res;
+  } else {
+    return null;
+  }
 }
