@@ -17,7 +17,7 @@ var fieldsRequired = {
   "target"     : true
 };
 
-routes.add = (req, res) => {
+routes.add = (db, req, res) => {
   var spell = {};
   var success = true;
 
@@ -56,6 +56,16 @@ routes.add = (req, res) => {
       spell["level"] = level;
     }
   }
+
+  db.collection("users").doc(req.user.uid).collection("custom_spells").add(spell)
+  .then((doc) => {
+    success = true;
+    return doc; // does nothing; thanks, eslint.
+  })
+  .catch((err) => {
+    success = false;
+    return err; // see above.
+  });
 
   res.json({
     "success": success

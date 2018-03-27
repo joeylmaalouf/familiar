@@ -38,13 +38,11 @@ const firebaseValidateMiddleware = (req, res, next) => {
   });
 };
 
-const prepareApp = (app, validate) => {
+const prepareApp = (app) => {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(cookieParser);
-  if (validate) {
-    app.use(firebaseValidateMiddleware);
-  }
+  app.use(firebaseValidateMiddleware);
   return app;
 };
 
@@ -125,6 +123,6 @@ exports.createUserCollection = functions.auth.user().onCreate((event) => {
   return db.collection('users').doc(event.data.uid).set({});
 });
 
-const customSpellsApp = prepareApp(express(), false);
-customSpellsApp.post("/spells/custom", customSpells.add);
+const customSpellsApp = prepareApp(express());
+customSpellsApp.post("/spells/custom", customSpells.add.bind(null, db));
 exports.customSpells = functions.https.onRequest(customSpellsApp);
