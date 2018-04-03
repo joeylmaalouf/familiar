@@ -117,9 +117,6 @@ exports.spells = functions.https.onRequest((request, response) => {
           id: doc.id,
           data: doc.data()
         });
-      });
-      console.log("All spells:")
-      console.log(all_spells)
 
       //check to see if the request calls for all spells or has a filter
       if (Object.keys(request.query).length) {
