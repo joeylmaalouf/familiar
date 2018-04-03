@@ -117,7 +117,7 @@ exports.spells = functions.https.onRequest((request, response) => {
           id: doc.id,
           data: doc.data()
         });
-
+      });
       //check to see if the request calls for all spells or has a filter
       if (Object.keys(request.query).length) {
         filtered_spells = [];
@@ -128,14 +128,14 @@ exports.spells = functions.https.onRequest((request, response) => {
           for (var j = 0; j < keys.length; j++){
             if (request.query[keys[j]] !== spell.data[keys[j]]){
               include_spell = false; // One feature of the spell is missing
-              break
+              break;
             }
           }
           if (include_spell){
             filtered_spells.push(all_spells[i]);
           }
         }
-        return response.send(filtered_spells)
+        return response.send(filtered_spells);
       }
       else{
           return response.send(all_spells);
