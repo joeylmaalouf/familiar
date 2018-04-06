@@ -1,0 +1,26 @@
+.mdl-card {
+  margin: 2px;
+  min-height: 0%;
+  width: 100%;
+}
+
+.mdl-card__title {
+  padding: 12px;
+  width: 100%;
+}
+
+.mdl-card__supporting-text {
+  padding: 8px;
+  width: 97.5%;
+}
+
+.mdl-card__supporting-text hr {
+  margin: 4px 0px 4px 0px;
+}
+
+.spell-link {
+  position: absolute;
+  right: 2.5%;
+  text-align: right;
+  width: auto;
+}
