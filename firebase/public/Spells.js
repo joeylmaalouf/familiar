@@ -17,10 +17,11 @@ var prepareSpell = (spell) => {
   return spell;
 };
 
-var addCard = (list, spell) => {
-  list.append(
+var addCard = (spell) => {
+  $("#spell-list").append(
     $("<div>", {
-      "class": "mdl-card mdl-shadow--4dp"
+      "class": "mdl-card mdl-shadow--4dp",
+      "style": "cursor: pointer;"
     })
     .append(
       $("<div>", {
@@ -58,76 +59,81 @@ var displaySpell = (spell) => {
   spellinfo += `<b>Spell Resistance:</b> ${spell.spellres}<hr>`;
   spellinfo += spell.longdesc;
 
-  $("#spell-info")
-  .empty()
-  .append(
-    $("<div>", {
-      "class": "mdl-card mdl-shadow--4dp"
-    })
-    .append(
-      $("<div>", {
-        "class": "mdl-card__title"
-      })
-      .append(
-        $("<h2>", {
-          "class": "mdl-card__title-text",
-          "text" : spell.name
-        })
-      )
-      .append(
-        $("<a>", {
-          "class": "mdl-card__supporting-text spell-link",
-          "href" : `https://www.archivesofnethys.com/${spell.link}`,
-          "text" : "AoN Link"
-        })
-      )
-    )
-    .append(
-      $("<div>", {
-        "class": "mdl-card__supporting-text",
-        "html" : spellinfo
-      })
-    )
-  )
-  .show();
+  $("#spell-title").text(spell.name);
+  $("#spell-link").attr("href", `https://www.archivesofnethys.com/${spell.link}`);
+  $("#spell-info").html(spellinfo);
+  $("#spell-card").fadeIn();
 };
 
 $(document).ready(() => {
-  $("#spell-info").hide();
-  var spellList = $("#spell-list");
+  $("#spell-card").hide();
+  $("#close-spell").click((event) => {
+    $("#spell-card").fadeOut();
+  });
   // TODO: call spells route, iterate over them and addCard each
-  var spell = {
-    "casttime": "1 minute",
-    "components": {
-      "details": {
-        "M": "a flask of holy water worth 25 gp"
+  var spells = [
+    {
+      "casttime": "1 minute",
+      "components": {
+        "details": {
+          "M": "a flask of holy water worth 25 gp"
+        },
+        "list": [
+          "V",
+          "S",
+          "M",
+          "DF"
+        ]
       },
-      "list": [
-        "V",
-        "S",
-        "M",
-        "DF"
-      ]
+      "duration": "24 hours",
+      "level": {
+        "cleric": 2,
+        "inquisitor": 2,
+        "oracle": 2,
+        "paladin": 2,
+        "warpriest": 2
+      },
+      "link": "SpellDisplay.aspx?ItemName=Abeyance",
+      "longdesc": "Abeyance suppresses the effects of a single curse on a creature. It does not restore any damage or drain that might have been caused by the curse. Abeyance cannot suppress curses that cannot be removed by remove curse, but it can suppress curses such as lycanthropy that require remove curse along with additional measures. An individual curse can be suppressed only once by abeyance, even if cast by a different caster.  Abeyance does not allow a creature to divest itself of cursed objects, though it can suppress a curse contracted from an object.",
+      "name": "Abeyance",
+      "range": "touch",
+      "restriction": null,
+      "save": "Will negates (harmless)",
+      "school": "abjuration",
+      "shortdesc": "Suppress the effects of a single curse.",
+      "spellres": "yes (harmless)",
+      "target": "creature touched"
     },
-    "duration": "24 hours",
-    "level": {
-      "cleric": 2,
-      "inquisitor": 2,
-      "oracle": 2,
-      "paladin": 2,
-      "warpriest": 2
-    },
-    "link": "SpellDisplay.aspx?ItemName=Abeyance",
-    "longdesc": "Abeyance suppresses the effects of a single curse on a creature. It does not restore any damage or drain that might have been caused by the curse. Abeyance cannot suppress curses that cannot be removed by remove curse, but it can suppress curses such as lycanthropy that require remove curse along with additional measures. An individual curse can be suppressed only once by abeyance, even if cast by a different caster.  Abeyance does not allow a creature to divest itself of cursed objects, though it can suppress a curse contracted from an object.",
-    "name": "Abeyance",
-    "range": "touch",
-    "restriction": null,
-    "save": "Will negates (harmless)",
-    "school": "abjuration",
-    "shortdesc": "Suppress the effects of a single curse.",
-    "spellres": "yes (harmless)",
-    "target": "creature touched"
-  };
-  addCard(spellList, prepareSpell(spell));
+    {
+      "casttime": "2 minutes",
+      "components": {
+        "details": {
+          "M": "a flask of holy water worth 50 gp"
+        },
+        "list": [
+          "V",
+          "M"
+        ]
+      },
+      "duration": "4 minutes",
+      "level": {
+        "sorcerer": 2,
+        "wizard": 2
+      },
+      "link": "SpellDisplay.aspx?ItemName=Abeyance",
+      "longdesc": "Abeyance2 suppresses the effects of a single curse on a creature. It does not restore any damage or drain that might have been caused by the curse. Abeyance cannot suppress curses that cannot be removed by remove curse, but it can suppress curses such as lycanthropy that require remove curse along with additional measures. An individual curse can be suppressed only once by abeyance, even if cast by a different caster.  Abeyance does not allow a creature to divest itself of cursed objects, though it can suppress a curse contracted from an object.",
+      "name": "Abeyance2",
+      "range": "touch",
+      "restriction": null,
+      "save": "Will negates (harmless)",
+      "school": "abjuration",
+      "shortdesc": "Suppress the effects of a single curse.",
+      "spellres": "yes (harmless)",
+      "target": "creature touched"
+    }
+  ];
+  spells.forEach((spell) => {
+    addCard(prepareSpell(spell));
+  });
   // TODO: if filter is applied, hide anything that doesn't match
 });

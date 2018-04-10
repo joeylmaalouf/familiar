@@ -91,11 +91,38 @@
       <main class="mdl-layout__content mdl-color--grey-100">
           <div class="mdl-color--white mdl-shadow--2dp mdl-grid">
             <div class="mdl-cell mdl-cell--12-col" id="spell-filters">
-              TODO: filters
+              <div class="mdl-card mdl-shadow--4dp">
+                <p id="filter-header">Filter Spells</p>
+                <!-- TODO: filters -->
+                <div class="mdl-grid" id="filter-body">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-name">
+                    <label class="mdl-textfield__label" for="filter-name">Name</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-class">
+                    <label class="mdl-textfield__label" for="filter-class">Class</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-level">
+                    <label class="mdl-textfield__label" for="filter-level">Level</label>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="mdl-cell mdl-cell--6-col" id="spell-list">
             </div>
-            <div class="mdl-cell mdl-cell--6-col" id="spell-info">
+            <div class="mdl-cell mdl-cell--6-col" id="spell-card">
+              <div class="mdl-card mdl-shadow--4dp">
+                <div class="mdl-card__title">
+                  <h2 class="mdl-card__title-text" id="spell-title"></h2>
+                  <div class="card-links">
+                    <a class="mdl-card__supporting-text" href="" target="_blank" id="spell-link">AoN Link</a>
+                    <a class="mdl-card__supporting-text fake-link" id="close-spell">Close</a>
+                  </div>
+                </div>
+                <div class="mdl-card__supporting-text" id="spell-info"></div>
+              </div>
             </div>
           </div>
       </main>
