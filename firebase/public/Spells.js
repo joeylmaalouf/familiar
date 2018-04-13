@@ -69,12 +69,32 @@ var displaySpell = (spell) => {
   $("#spell-card").fadeIn();
 };
 
+var openFilters = () => {
+  $("#filter-toggle")
+  .text("remove_circle_outline")
+  .click(closeFilters);
+
+  $("#filter-body").show();
+};
+
+var closeFilters = () => {
+  $("#filter-toggle")
+  .text("add_circle_outline")
+  .click(openFilters);
+
+  $("#filter-body").hide();
+};
+
 $(document).ready(() => {
   $("#spell-card").hide();
+  closeFilters();
+
   $("#close-spell").click((event) => {
     $("#spell-card").fadeOut();
   });
+
   $.get("/spells").then((data) => {
+    $("#loading-spinner").hide();
     data.forEach((spell) => {
       addCard(prepareSpell(spell.data));
     });

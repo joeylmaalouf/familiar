@@ -93,22 +93,68 @@
             <div class="mdl-cell mdl-cell--12-col" id="spell-filters">
               <div class="mdl-card mdl-shadow--4dp">
                 <p id="filter-header">Filter Spells</p>
-                <!-- TODO: filters -->
+                <i class="material-icons" id="filter-toggle"></i>
                 <div class="mdl-grid" id="filter-body">
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-                    <input class="mdl-textfield__input" type="text" id="filter-name">
-                    <label class="mdl-textfield__label" for="filter-name">Name</label>
+                    <input class="mdl-textfield__input" type="text" id="filter-name-field">
+                    <label class="mdl-textfield__label" for="filter-name-field">Name</label>
                   </div>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-                    <input class="mdl-textfield__input" type="text" id="filter-class">
-                    <label class="mdl-textfield__label" for="filter-class">Class</label>
+                    <input class="mdl-textfield__input" type="text" id="filter-class-field">
+                    <label class="mdl-textfield__label" for="filter-class-field">Class</label>
                   </div>
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-                    <input class="mdl-textfield__input" type="text" id="filter-level">
-                    <label class="mdl-textfield__label" for="filter-level">Level</label>
+                    <input class="mdl-textfield__input" type="text" id="filter-level-field">
+                    <label class="mdl-textfield__label" for="filter-level-field">Level</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-school-field">
+                    <label class="mdl-textfield__label" for="filter-school-field">School</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-restriction-field">
+                    <label class="mdl-textfield__label" for="filter-restriction-field">Restriction</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-casttime-field">
+                    <label class="mdl-textfield__label" for="filter-casttime-field">Casting Time</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-components-field">
+                    <label class="mdl-textfield__label" for="filter-components-field">Components</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-range-field">
+                    <label class="mdl-textfield__label" for="filter-range-field">Range</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-target-field">
+                    <label class="mdl-textfield__label" for="filter-target-field">Target</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-duration-field">
+                    <label class="mdl-textfield__label" for="filter-duration-field">Duration</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-save-field">
+                    <label class="mdl-textfield__label" for="filter-save-field">Saving Throw</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-spellres-field">
+                    <label class="mdl-textfield__label" for="filter-spellres-field">Spell Resistance</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--10-col">
+                    <input class="mdl-textfield__input" type="text" id="filter-desc-field">
+                    <label class="mdl-textfield__label" for="filter-desc-field">Description</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-typography--text-center">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="filter-button">Apply Filters</button>
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="spinner-container">
+              <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active" id="loading-spinner"></div>
             </div>
             <div class="mdl-cell mdl-cell--6-col" id="spell-list">
             </div>

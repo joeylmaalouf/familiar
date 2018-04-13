@@ -30,6 +30,12 @@
   text-decoration: underline;
 }
 
+.spinner-container {
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
 #filter-header {
   font-size: 16px;
   margin: 0px;
@@ -39,4 +45,15 @@
 #filter-body {
   padding: 8px;
   width: 97.5%;
+}
+
+#filter-button {
+  right: 0px;
+}
+
+#filter-toggle {
+  cursor: pointer;
+  position: absolute;
+  right: 8px;
+  top: 8px;
 }
