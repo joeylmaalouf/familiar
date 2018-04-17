@@ -1,3 +1,41 @@
+var spells;
+var spellList;
+var spellCard;
+var spellCardTitle;
+var spellCardLink;
+var spellCardInfo;
+var filterToggle;
+var filterBody;
+var filterFields;
+
+$(document).ready(() => {
+  spellList      = $("#spell-list");
+  spellCard      = $("#spell-card");
+  spellCardTitle = $("#spell-title");
+  spellCardLink  = $("#spell-link");
+  spellCardInfo  = $("#spell-info");
+  filterToggle   = $("#filter-toggle");
+  filterBody     = $("#filter-body");
+  filterFields   = $("[id^='filter-'][id$='-field']");
+
+  spellCard.hide();
+  closeFilters();
+
+  $.get("/spells").then((data) => {
+    $("#loading-spinner").hide();
+    spells = data;
+    listSpells(spells);
+  });
+
+  $("#close-spell").click((event) => {
+    spellCard.fadeOut();
+  });
+
+  $("#filter-button").click((event) => {
+    applyFilters(spells);
+  });
+});
+
 var prepareSpell = (spell) => {
   if (spell.hasOwnProperty("level")) {
     spell.levelstr = Object.keys(spell.level).sort().map((spellClass) => {
@@ -22,7 +60,7 @@ var prepareSpell = (spell) => {
 };
 
 var addCard = (spell) => {
-  $("#spell-list").append(
+  spellList.append(
     $("<div>", {
       "class": "mdl-card mdl-shadow--4dp",
       "style": "cursor: pointer;"
@@ -63,42 +101,81 @@ var displaySpell = (spell) => {
   spellinfo += `<b>Spell Resistance:</b> ${spell.spellres}<hr>`;
   spellinfo += spell.longdesc;
 
-  $("#spell-title").text(spell.name);
-  $("#spell-link").attr("href", `https://www.archivesofnethys.com/${spell.link}`);
-  $("#spell-info").html(spellinfo);
-  $("#spell-card").fadeIn();
+  spellCardTitle.text(spell.name);
+  spellCardLink.attr("href", `https://www.archivesofnethys.com/${spell.link}`);
+  spellCardInfo.html(spellinfo);
+  spellCard.fadeIn();
+};
+
+var listSpells = (spells) => {
+  spells.forEach((spell) => {
+    addCard(prepareSpell(spell.data));
+  });
 };
 
 var openFilters = () => {
-  $("#filter-toggle")
+  filterToggle
   .text("remove_circle_outline")
   .click(closeFilters);
 
-  $("#filter-body").show();
+  filterBody.show();
 };
 
 var closeFilters = () => {
-  $("#filter-toggle")
+  filterToggle
   .text("add_circle_outline")
   .click(openFilters);
 
-  $("#filter-body").hide();
+  filterBody.hide();
 };
 
-$(document).ready(() => {
-  $("#spell-card").hide();
-  closeFilters();
-
-  $("#close-spell").click((event) => {
-    $("#spell-card").fadeOut();
+var applyFilters = (spells) => {
+  var filters = {};
+  filterFields.each((index, element) => {
+    if (element.value.length) {
+      filters[element.id.split("-")[1]] = element.value.toUpperCase();
+    }
   });
-
-  $.get("/spells").then((data) => {
-    $("#loading-spinner").hide();
-    data.forEach((spell) => {
-      addCard(prepareSpell(spell.data));
-    });
-  });
-});
-
-// TODO: if filter is applied, hide anything that doesn't match
+  var fields = Object.keys(filters);
+  spellList.empty();
+  listSpells(
+    spells.filter((spell) => {
+      return fields.every((field) => {
+        switch (field) {
+          case "desc":
+            return spell.data.shortdesc.toUpperCase().includes(filters.desc) ||
+                   spell.data.longdesc .toUpperCase().includes(filters.desc);
+          case "components":
+            var components = filters.components.split(",");
+            if (components.length > 1) {
+              return components.map((c) => c.trim())
+              .every((component) => spell.data.components.list.includes(component));
+            }
+            else {
+              return spell.data.componentstr.toUpperCase().includes(filters.components);
+            }
+          case "class":
+            if (fields.includes("level")) {
+              return Object.keys(spell.data.level)
+              .filter((class_) => class_.toUpperCase().includes(filters.class))
+              .some((class_) => spell.data.level[class_].includes(filters.level));
+            }
+            else {
+              return Object.keys(spell.data.level)
+              .some((class_) => class_.toUpperCase().includes(filters.class));
+            }
+          case "level":
+            if (fields.includes("class")) {
+              return true; // actual logic taken care of above
+            }
+            else {
+              return Object.values(spell.data.level).includes(filters.level);
+            }
+          default:
+            return spell.data[field].toUpperCase().includes(filters[field]);
+        }
+      });
+      return true;
+    })
+  );
+};
