@@ -2,6 +2,10 @@ const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const express = require("express");
 const cookieParser = require('cookie-parser')();
+var bodyParser = require('body-parser');
+
+const customSpells = require('./customSpells.js');
+
 
 const firebaseValidateMiddleware = (req, res, next) => {
   if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
@@ -24,6 +28,14 @@ const firebaseValidateMiddleware = (req, res, next) => {
   }).catch((error) => {
     res.status(403).send('Unauthorized');
   });
+};
+
+const prepareApp = (app) => {
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
+  app.use(cookieParser);
+  app.use(firebaseValidateMiddleware);
+  return app;
 };
 
 admin.initializeApp(functions.config().firebase);
@@ -95,6 +107,8 @@ exports.main = functions.https.onRequest(main);
 
 exports.spells = functions.https.onRequest((request, response) => {
   if (request.method === "GET") {
+
+    //Get the full list of spells
     db.collection("spells").get()
     .then(snapshot => {
       var all_spells = [];
@@ -104,7 +118,28 @@ exports.spells = functions.https.onRequest((request, response) => {
           data: doc.data()
         });
       });
-      return response.send(all_spells);
+      //check to see if the request calls for all spells or has a filter
+      if (Object.keys(request.query).length) {
+        filtered_spells = [];
+        for (var i = 0; i < all_spells.length; i++) { //iterate through spell list
+          keys = Object.keys(request.query)
+          include_spell = true;
+          spell = all_spells[i];
+          for (var j = 0; j < keys.length; j++){
+            if (request.query[keys[j]] !== spell.data[keys[j]]){
+              include_spell = false; // One feature of the spell is missing
+              break;
+            }
+          }
+          if (include_spell){
+            filtered_spells.push(all_spells[i]);
+          }
+        }
+        return response.send(filtered_spells);
+      }
+      else{
+          return response.send(all_spells);
+      }
     })
     .catch(err => {
         console.error(err);
@@ -138,14 +173,29 @@ exports.spells = functions.https.onRequest((request, response) => {
 
 function addSpell(spell) {
   db.collection("spells").add({
+    casttime: spell.casttime,
+    components: spell.components,
+    level: spell.level,
+    link: spell.link,
+    longdesc: spell.longdesc,
     name: spell.name,
-    level: spell.data.level
+    range: spell.range,
+    restriction: spell.restriction,
+    save: spell.save,
+    school: spell.school,
+    shortdesc: spell.shortdesc,
+    spellres: spell.spellres,
+    target: spell.target
   });
 }
 
 exports.createUserCollection = functions.auth.user().onCreate((event) => {
   return db.collection('users').doc(event.data.uid).set({});
 });
+
+const customSpellsApp = prepareApp(express());
+customSpellsApp.post("/spells/custom", customSpells.add.bind(null, db));
+exports.customSpells = functions.https.onRequest(customSpellsApp);
 
 function logUserAction(user, msg) {
   console.log("[" + user.uid + " (" + user.name + "}] "  + msg);

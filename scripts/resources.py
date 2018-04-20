@@ -1,4 +1,5 @@
 import re
+import requests
 
 # thanks, AoN!
 BASE_URL = r'https://www.archivesofnethys.com/'
@@ -79,10 +80,28 @@ def process_spell(spell):
         'list': components_list,
         'details': components_dict
     }
+    spell['longdesc'] = spell['longdesc'].replace('<i>', '').replace('</i>', '').replace('<br />', ' ')
     return spell
+
+def spell_exceptions(spells):
+    for index, spell in enumerate(spells):
+        # Controlled Fireball is the only unique spell to share a page with another (Fireball)
+        # so we have to update its info for real, instead of using the Fireball data
+        if 'Controlled Fireball' in spell['link']:
+            updated = spell_defaults.copy()
+            updated['link'] = spell['link']
+            updated['shortdesc'] = spell['shortdesc']
+            page = requests.get('https://pastebin.com/raw/TdcXxwJa').text.replace('\n', '').replace('\r', '')
+            for spell_regex in spell_regexes:
+                spell_result = re.compile(spell_regex).search(page)
+                if spell_result:
+                    updated.update(spell_result.groupdict())
+            spells[index] = updated
+    return spells
 
 SPELL = {
     'defaults'     : spell_defaults,
+    'exceptions_fn': spell_exceptions,
     'filename'     : 'spells',
     'list_regex'   : spell_list_regex,
     'power_regexes': spell_regexes,
@@ -137,6 +156,7 @@ def process_arcane_discovery(arcane_discovery):
 
 ARCANE_DISCOVERY = {
     'defaults'     : arcane_discovery_defaults,
+    'exceptions_fn': None,
     'filename'     : 'arcane_discoveries',
     'list_regex'   : arcane_discovery_regex,
     'power_regexes': None,
@@ -179,6 +199,7 @@ def process_hex(hex):
 
 HEX = {
     'defaults'     : hex_defaults,
+    'exceptions_fn': None,
     'filename'     : 'hexes',
     'list_regex'   : hex_regex,
     'power_regexes': None,
@@ -274,6 +295,7 @@ def _process_domain(domain, is_subdomain = False):
 
 DOMAIN = {
     'defaults'     : domain_defaults,
+    'exceptions_fn': None,
     'filename'     : 'domains',
     'list_regex'   : domain_regex,
     'power_regexes': domain_regexes,
@@ -333,6 +355,7 @@ def process_arcana(arcana):
 
 ARCANA = {
     'defaults'     : arcana_defaults,
+    'exceptions_fn': None,
     'filename'     : 'arcana',
     'list_regex'   : arcana_regex,
     'power_regexes': None,
@@ -386,6 +409,7 @@ def process_exploit(exploit):
 
 EXPLOIT = {
     'defaults'     : exploit_defaults,
+    'exceptions_fn': None,
     'filename'     : 'exploits',
     'list_regex'   : exploit_regex,
     'power_regexes': None,

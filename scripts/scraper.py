@@ -17,7 +17,7 @@ def read_link(page_requests):
     return text.replace('\n', '').replace('\r', '')
 
 
-def parse_powers(page_requests, list_regex, power_defaults = None, power_regexes = None, process_fn = None):
+def parse_powers(page_requests, list_regex, power_defaults = None, power_regexes = None, process_fn = None, exceptions_fn = None):
     """ Parse a generic list of powers for the details of each one. """
     powers = []
 
@@ -59,6 +59,10 @@ def parse_powers(page_requests, list_regex, power_defaults = None, power_regexes
         # and put the parsed power in the list to be returned
         powers.append(power)
 
+    # if a special exceptions function is supplied, run it on the power list
+    if exceptions_fn:
+        powers = exceptions_fn(powers)
+
     return powers
 
 
@@ -81,7 +85,8 @@ def main():
             power_type['list_regex'],
             power_type['defaults'],
             power_type['power_regexes'],
-            power_type['process_fn']
+            power_type['process_fn'],
+            power_type['exceptions_fn']
         )
         save_json(powers, power_type['filename'])
 
