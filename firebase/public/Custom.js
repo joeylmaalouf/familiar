@@ -23,14 +23,11 @@ var submitForm = () => {
       "spellres"   : $("#spell-spellres"   ).val(),
       "target"     : $("#spell-target"     ).val()
     };
-    var headers = {
-      "Authorization": "Bearer " + token
-    };
     $.ajax({
-      "url"     : "/spells/custom",
+      "url"     : "/spells/custom/add",
       "type"    : "post",
       "data"    : spellData,
-      "headers" : headers,
+      "headers" : { "Authorization": "Bearer " + token },
       "dataType": "json"
     })
     .done((data) => {

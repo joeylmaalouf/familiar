@@ -148,7 +148,6 @@ exports.spells = functions.https.onRequest((request, response) => {
   }
   else if (request.method === "POST") {
     var spells = request.body.spells;
-    console.log(spells);
     if (spells !== undefined) {
       if (Array.isArray(spells)) {
         spells.forEach(spell => {
@@ -194,7 +193,8 @@ exports.createUserCollection = functions.auth.user().onCreate((event) => {
 });
 
 const customSpellsApp = prepareApp(express());
-customSpellsApp.post("/spells/custom", customSpells.add.bind(null, db));
+customSpellsApp.post("/spells/custom/add", customSpells.add.bind(null, db));
+customSpellsApp.post("/spells/custom/get", customSpells.get.bind(null, db));
 exports.customSpells = functions.https.onRequest(customSpellsApp);
 
 function logUserAction(user, msg) {

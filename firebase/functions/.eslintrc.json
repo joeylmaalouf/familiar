@@ -65,8 +65,8 @@
     // Warn against shorthand type conversions
     "no-implicit-coercion": 1,
 
-    // Warn against function declarations and expressions inside loop statements
-    "no-loop-func": 1,
+    // Removed warnings against function declarations and expressions inside loop statements
+    "no-loop-func": "off",
 
     // Disallow new operators with the Function object
     "no-new-func": 2,

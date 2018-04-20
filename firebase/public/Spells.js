@@ -21,10 +21,31 @@ $(document).ready(() => {
   spellCard.hide();
   closeFilters();
 
-  $.get("/spells").then((data) => {
-    $("#loading-spinner").hide();
-    spells = data;
-    listSpells(spells);
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdToken().then((token) => {
+        $.get("/spells").then((data) => {
+          spells = data.map((spell) => { return spell.data; });
+          $.ajax({
+            "url"     : "/spells/custom/get",
+            "type"    : "post",
+            "data"    : {},
+            "headers" : { "Authorization": "Bearer " + token },
+            "dataType": "json"
+          })
+          .done((data) => {
+            if (data.success) {
+              Array.prototype.push.apply(spells, data.data.spells);
+            }
+            spells.sort((a, b) => {
+              return a.name.toUpperCase().charCodeAt(0) - b.name.toUpperCase().charCodeAt(0);
+            });
+            $("#loading-spinner").hide();
+            listSpells(spells);
+          });
+        });
+      });
+    }
   });
 
   $("#close-spell").click((event) => {
@@ -109,7 +130,7 @@ var displaySpell = (spell) => {
 
 var listSpells = (spells) => {
   spells.forEach((spell) => {
-    addCard(prepareSpell(spell.data));
+    addCard(prepareSpell(spell));
   });
 };
 
@@ -143,25 +164,25 @@ var applyFilters = (spells) => {
       return fields.every((field) => {
         switch (field) {
           case "desc":
-            return spell.data.shortdesc.toUpperCase().includes(filters.desc) ||
-                   spell.data.longdesc .toUpperCase().includes(filters.desc);
+            return spell.shortdesc.toUpperCase().includes(filters.desc) ||
+                   spell.longdesc .toUpperCase().includes(filters.desc);
           case "components":
             var components = filters.components.split(",");
             if (components.length > 1) {
               return components.map((c) => c.trim())
-              .every((component) => spell.data.components.list.includes(component));
+              .every((component) => spell.components.list.includes(component));
             }
             else {
-              return spell.data.componentstr.toUpperCase().includes(filters.components);
+              return spell.componentstr.toUpperCase().includes(filters.components);
             }
           case "class":
             if (fields.includes("level")) {
-              return Object.keys(spell.data.level)
+              return Object.keys(spell.level)
               .filter((class_) => class_.toUpperCase().includes(filters.class))
-              .some((class_) => spell.data.level[class_].includes(filters.level));
+              .some((class_) => spell.level[class_].includes(filters.level));
             }
             else {
-              return Object.keys(spell.data.level)
+              return Object.keys(spell.level)
               .some((class_) => class_.toUpperCase().includes(filters.class));
             }
           case "level":
@@ -169,10 +190,10 @@ var applyFilters = (spells) => {
               return true; // actual logic taken care of above
             }
             else {
-              return Object.values(spell.data.level).includes(filters.level);
+              return Object.values(spell.level).includes(filters.level);
             }
           default:
-            return spell.data[field].toUpperCase().includes(filters[field]);
+            return spell[field].toUpperCase().includes(filters[field]);
         }
       });
       return true;
