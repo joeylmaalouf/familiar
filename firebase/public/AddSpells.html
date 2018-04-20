@@ -37,7 +37,7 @@
     <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
       <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title">Add Spells</span>
+          <span class="mdl-layout-title">Familiar: Upload Spells</span>
           <div class="mdl-layout-spacer"></div>
           <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
             <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
@@ -91,22 +91,20 @@
         <div class="mdl-grid">
           <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
             <div id="file-chooser">
-              <h3>Select your spells.json</h3>
+              <h3>Select your spells.json:</h3>
               <label class="input-custom-file mdl-button mdl-button--raised mdl-js-button mdl-button--colored">
                 Select File
                 <input id="jsonSelect" type="file">
               </label>
               <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="submit">Submit</button>
               <img src="spinner.gif" alt="spinner" id="spinner">
-              <p id="invalidFiletype">Invalid Filetype, please select a .json</p>
+              <p id="invalidFiletype">Invalid filetype; please select a JSON file.</p>
               <p id="error"></p>
             </div>
           </div>
-          <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-            <div id="preview">
-              <h5 id="filename"></h5>
-              <div id="preview-list"></div>
-            </div>
+          <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid" id="preview">
+            <h5 id="filename"></h5>
+            <div id="preview-list"></div>
           </div>
         </div>
       </main>

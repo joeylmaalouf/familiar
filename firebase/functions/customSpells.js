@@ -18,13 +18,15 @@ var fieldsRequired = {
 };
 
 routes.add = (db, req, res) => {
-  var spell = {};
   var success = true;
+  var error = "";
+  var spell = {};
 
   for (var field in fieldsRequired) {
     var required = fieldsRequired[field];
     if (required && !(field in req.body)) {
       success = false;
+      error = "missing required fields"
       break;
     }
     spell[field] = req.body[field];
@@ -59,16 +61,39 @@ routes.add = (db, req, res) => {
 
   db.collection("users").doc(req.user.uid).collection("custom_spells").add(spell)
   .then((doc) => {
-    success = true;
     return doc; // does nothing; thanks, eslint.
   })
   .catch((err) => {
     success = false;
+    error = err;
     return err; // see above.
   });
 
   res.json({
-    "success": success
+    "success": success,
+    "error": error
+  });
+};
+
+routes.get = (db, req, res) => {
+  db.collection("users").doc(req.user.uid).collection("custom_spells").get()
+  .then((data) => {
+    var spells = [];
+    data.forEach((doc) => spells.push(doc.data()));
+    res.json({
+      "success": true,
+      "error": "",
+      "data": { "spells": spells }
+    });
+    return;
+  })
+  .catch((err) => {
+    res.json({
+      "success": false,
+      "error": err,
+      "data": {}
+    });
+    return;
   });
 };
 

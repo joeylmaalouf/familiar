@@ -21,7 +21,7 @@
         "function": "spells"
       },
       {
-        "source": "/spells/custom",
+        "source": "/spells/custom/**",
         "function": "customSpells"
       },
       {
