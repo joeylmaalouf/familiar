@@ -29,8 +29,10 @@
 
     <!-- Custom -->
     <link rel="stylesheet" href="outline.css">
+    <link rel="stylesheet" href="dialog-polyfill.css">
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="outline.js"></script>
+    <script type="text/javascript" src="dialog-polyfill.js"></script>
     <script type="text/javascript" src="Spellbooks.js"></script>
 
   </head>
@@ -117,131 +119,121 @@
 
           <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid" id="spellbook-display" style="display: none;">
             <div class="mdl-cell mdl-cell--12-col">
-              <h3>Your Spellbook Name Here</h3>
+              <span style="font-size: 24pt; line-height: 36px; vertical-align: middle; margin-right: 20px;" id="spellbook-name">Your Spellbook Name Here</span>
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="switch-to-prep-mode">
+                Learn
+              </button>
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" id="switch-to-learn-mode" style="display: none;">
+                Prepare
+              </button>
+              <button class="mdl-button mdl-js-button mdl-button--colored" id="save-spellbook">
+                Save
+              </button>
+              <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner" style="vertical-align: middle;" id="save-spinner"></div>
             </div>
 
-            <div class="mdl-cell mdl-cell--3-col">
-              <span>Spell Browser</span>
+            <div class="mdl-cell mdl-cell--12-col mdl-grid" id="learn-spells">
+              <div class="mdl-cell mdl-cell--3-col mdl-grid mdl-cell--top">
+                <div class="mdl-cell mdl-cell--12-col mdl-grid">
+                  <button class="mdl-cell mdl-cell--12-col mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="choose-class">
+                    Wizard/Sourcerer
+                  </button>
+                  <dialog class="mdl-dialog" id="choose-class-dialog">
+                    <h4 class="mdl-dialog__title">Choose spell lists</h4>
+                    <div class="mdl-dialog__content">
+                      <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="icon-toggle-1">
+                        <input type="checkbox" id="icon-toggle-1" class="mdl-icon-toggle__input" checked>
+                        <i class="mdl-icon-toggle__label material-icons filled-label">label</i>
+                        <i class="mdl-icon-toggle__label material-icons empty-label">label_outline</i>
+                        <span class="class-select-labels">Wizard/Sourcerer</span>
+                      </label>
+                      <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="icon-toggle-2">
+                        <input type="checkbox" id="icon-toggle-2" class="mdl-icon-toggle__input">
+                        <i class="mdl-icon-toggle__label material-icons filled-label">label</i>
+                        <i class="mdl-icon-toggle__label material-icons empty-label">label_outline</i>
+                        <span class="class-select-labels">Cleric/Oracle</span>
+                      </label>
+                    </div>
+                    <div class="mdl-dialog__actions">
+                      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="ok-dialog">Ok</button>
+                      <button type="button" class="mdl-button" id="close-dialog">Cancel</button>
+                    </div>
+                  </dialog> 
+
+                  <div class="mdl-textfield mdl-js-textfield">
+                    <input class="mdl-textfield__input" type="text" id="spellsearch">
+                    <label class="mdl-textfield__label" for="spellsearch">Search...</label>
+                  </div>
+                </div>
+
+                <div class="mdl-cell mdl-cell--12-col mdl-grid">
+                  <div class="mdl-cell mdl-cell--12-col spell-card mdl-grid mdl-shadow--2dp spell-result-card" data-uid="21837192837" data-level="1">
+                    <div class="mdl-cell mdl-cell--9-col spell-result-card-element">
+                      <div class="spell-result-card-title">Buttering Blast</div>
+                    </div>
+                    <div class="mdl-cell mdl-cell--3-col spell-result-card-element">
+                      <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored spell-result-card-button">
+                        <i class="material-icons">trending_flat</i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mdl-cell mdl-cell--12-col spell-card mdl-grid mdl-shadow--2dp spell-result-card" data-uid="21387123871237" data-level="3">
+                    <div class="mdl-cell mdl-cell--9-col spell-result-card-element">
+                      <div class="spell-result-card-title">Wall of Farce</div>
+                    </div>
+                    <div class="mdl-cell mdl-cell--3-col spell-result-card-element">
+                      <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored spell-result-card-button">
+                        <i class="material-icons">trending_flat</i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mdl-cell mdl-cell--9-col mdl-grid">
+                <div id="spell-learn-drop">
+                  <h4>Learned Spells</h4>
+                  <ul class="demo-list-icon mdl-list" id="spell-learn-drop-list"></ul>
+                </div>
+              </div>
             </div>
-            <div class="mdl-cell mdl-cell--9-col mdl-grid">
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col">
-                  <b>Spell Level</b>
-                </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <b>Prepared Spells</b>
-                </div>
+
+            <div class="mdl-cell mdl-cell--12-col mdl-grid" id="prepare-spells" style="display: none;">
+              <div class="mdl-cell mdl-cell--3-col mdl-grid">
+
               </div>
 
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>0</span>
+              <div class="mdl-cell mdl-cell--9-col mdl-grid" id="prepped-spells-list">
+                <h4>Prepared Spells</h4>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-0">
+                  <h5>Cantrips</h5>
                 </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-1">
+                  <h5>Level 1</h5>
                 </div>
-              </div>
-
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>1</span>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-2">
+                  <h5>Level 2</h5>
                 </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-3">
+                  <h5>Level 3</h5>
                 </div>
-              </div>
-
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>2</span>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-4">
+                  <h5>Level 4</h5>
                 </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-5">
+                  <h5>Level 5</h5>
                 </div>
-              </div>
-
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>3</span>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-6">
+                  <h5>Level 6</h5>
                 </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-7">
+                  <h5>Level 7</h5>
                 </div>
-              </div>
-
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>4</span>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-8">
+                  <h5>Level 8</h5>
                 </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
-                </div>
-              </div>
-
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>5</span>
-                </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
-                </div>
-              </div>
-
-              <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                <div class="mdl-cell mdl-cell--1-col spellbook-spell-level">
-                  <span></br>6</span>
-                </div>
-                <div class="mdl-cell mdl-cell--11-col">
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Buttering Blast</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Wall of Farce</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Color Spill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Hotball</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Arc of Chill</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magic Armor</button>
-                  <button class="mdl-button mdl-js-button mdl-button--primary tiny-button">Speed Boost</button>
-                  <button class="mdl-button mdl-js-button mdl-button--accent tiny-button">Magical Rocket</button>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid marginless paddingless" id="prepped-spells-list-level-9">
+                  <h5>Level 9</h5>
                 </div>
               </div>
             </div>

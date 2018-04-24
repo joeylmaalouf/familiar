@@ -29,3 +29,53 @@ label.input-custom-file input[type=file] {
 .spellbook-spell-level {
   text-align: center;
 }
+
+.class-select-labels {
+  font-size: 15pt;
+  display: inline-block;
+  position: relative;
+  top: -5px;
+}
+
+.spell-result-card {
+  height: 30px;
+}
+
+.spell-result-card-element {
+  position: relative;
+  margin: 0px;
+}
+
+.spell-result-card-title {
+  position: absolute;
+  bottom: -25%;
+}
+
+.spell-result-card-button {
+  position: absolute;
+  bottom: -55%;
+  right: -96%;
+}
+
+.spell-learn-drop-active {
+  min-height: 100px;
+  height: 100%;
+  min-width: 200px;
+  width: 100%;
+  border-radius: 10px;
+  border-width: 3px;
+  border-style: dashed;
+  border-color: green;
+}
+
+.spell-learn-drop-active:hover {
+  background-color: gray;
+}
+
+.marginless {
+  margin: 0px;
+}
+
+.paddingless {
+  padding: 0px;
+}
