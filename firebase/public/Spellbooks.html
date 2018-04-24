@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="outline.css">
     <link rel="stylesheet" href="dialog-polyfill.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="Spellbooks.css">
     <script type="text/javascript" src="outline.js"></script>
     <script type="text/javascript" src="dialog-polyfill.js"></script>
     <script type="text/javascript" src="Spellbooks.js"></script>
@@ -138,9 +139,14 @@
                   <button class="mdl-cell mdl-cell--12-col mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="choose-class">
                     Click Me
                   </button>
-                  <dialog class="mdl-dialog" id="choose-class-dialog">
+                  <dialog class="mdl-dialog spell-list-dialog" id="choose-class-dialog">
                     <h4 class="mdl-dialog__title">Choose spell lists</h4>
-                    <div class="mdl-dialog__content" id="spell-list-selectors"></div>
+                    <div class="mdl-dialog__content mdl-grid">
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-1"></div>
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-2"></div>
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-3"></div>
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-4"></div>
+                    </div>
                     <div class="mdl-dialog__actions">
                       <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="ok-dialog">Ok</button>
                       <button type="button" class="mdl-button" id="close-dialog">Cancel</button>

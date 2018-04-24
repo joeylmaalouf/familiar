@@ -1,11 +1,14 @@
 var token;
+var spells;
 var learnt_spells = {};
+var selected_spell_lists = [];
 
 $(document).ready(function() {
   var dialog = document.querySelector("#choose-class-dialog");
   var dialogButton = document.querySelector("#choose-class");
 
   fetchSpellLists();
+  fetchAllSpells();
 
   var selectedSpellUID = undefined;
   var selectedSpellName = undefined;
@@ -54,37 +57,8 @@ $(document).ready(function() {
   });
 
   document.querySelector("#ok-dialog").addEventListener('click', function() {
-    fetchSpellsOfList();
+    displaySpellsOfList();
     dialog.close();
-  });
-
-  $(".spell-result-card-button").each(function() {
-    $(this).click(function(event) {
-      event.stopPropagation();
-      var uid = $(this).parents(".spell-result-card").data("uid");
-      var name = $(this).parents(".spell-result-card").find(".spell-result-card-title").text();
-      var level = $(this).parents(".spell-result-card").data("level");
-      learnSpell(uid, name);
-    });
-  });
-
-  $(".mdl-js-icon-toggle").each(function() {
-    if ($(this).find('input').is(':checked')) {
-      $(this).find('.filled-label').show();
-      $(this).find('.empty-label').hide();
-    } else {
-      $(this).find('.filled-label').hide();
-      $(this).find('.empty-label').show();
-    }
-    $(this).click(function() {
-      if ($(this).find('input').is(':checked')) {
-        $(this).find('.filled-label').show();
-        $(this).find('.empty-label').hide();
-      } else {
-        $(this).find('.filled-label').hide();
-        $(this).find('.empty-label').show();
-      }
-    });
   });
 
   $("#add-spellbook").click(function() {
@@ -382,7 +356,7 @@ function pushSpellbook(event) {
   $.ajax({
     url: "/spellbooks/" + event.data.uid,
     type: "post",
-    data: {spells: learnt_spells},
+    data: {'spells': learnt_spells},
     headers: {"Authorization": "Bearer " + token},
     dataType: "json",
     beforeSend: function() {
@@ -421,65 +395,132 @@ function fetchSpellLists() {
 }
 
 function createSpellListDialogOptions(spell_lists) {
-  $("#spell-list-selectors").empty();
-  spell_lists.forEach(function(listname) {
+  $("#spell-list-selectors-1").empty();
+  $("#spell-list-selectors-2").empty();
+  spell_lists.forEach(function(listname, index) {
     var custom_id = listname + "-selector";
     var label_container = $('<label />', {
-      'class': 'mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect',
+      'class': 'spell-list-selector mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect',
       'for': custom_id
     });
 
-    label_container.append($('<input />', {
+    var input_field = $('<input />', {
       'class': 'mdl-icon-toggle__input',
       'type': 'checkbox',
       'data-name': listname,
       'id': custom_id
-    }));
-    label_container.append($('<i />', {
+    });
+    label_container.append(input_field);
+    var full_icon = $('<i />', {
       'class': 'mdl-icon-toggle__label material-icons filled-label',
       'text': "label"
-    }));
-    label_container.append($('<i />', {
+    });
+    label_container.append(full_icon);
+    var empty_icon = $('<i />', {
       'class': 'mdl-icon-toggle__label material-icons empty-label',
       'text': "label_outline"
-    }));
+    });
+    label_container.append(empty_icon);
     label_container.append($('<span />', {
       'class': 'class-select-labels',
       'text': listname
     }));
 
-    $("#spell-list-selectors").append(label_container);
+    input_field.hide();
+    if (input_field.is(':checked')) {
+      full_icon.show();
+      empty_icon.hide();
+    } else {
+      full_icon.hide();
+      empty_icon.show();
+    }
+    label_container.click(function() {
+      if ($(this).find('input').is(':checked')) {
+        $(this).find('.filled-label').show();
+        $(this).find('.empty-label').hide();
+        selected_spell_lists.push(listname);
+      } else {
+        $(this).find('.filled-label').hide();
+        $(this).find('.empty-label').show();
+        selected_spell_lists.remove(listname);
+      }
+    });
+
+    $("#spell-list-selectors-" + (index % 4 + 1)).append(label_container);
   });
 }
 
-function fetchSpellsOfList() {
-  // var selected_lists = [];
-  // $("#spell-list-selectors").children(".mdl-icon-toggle__input:checkbox:checked").each(function(element) {
-  //   selected_lists.push(element.data("name"));
-  // });
+function displaySpellsOfList() {
+  if (!spells) {
+    return;
+  }
+  var filtered_spells = spells.filter((spell) => {
+    for (classnames in selected_spell_lists) {
+      for (classname in classnames.split("/")) {
+        if (spell.level.hasOwnProperty(classname)) {
+          return true;
+        }
+        return false;
+      }
+    }
+  });
+  console.log("Filtered Spells List", filtered_spells);
 
-  // console.log("Selected Spell Lists", selected_lists);
+  renderSpells(filtered_spells);
+}
 
-  // selected_lists.forEach(function(listname) {
+function renderSpells(spells_to_render) {
+  spells_to_render.forEach(spell => {
+    var minlevel = 11;
+    for (classnames in selected_spell_lists) {
+      for (classname in classnames.split("/")) {
+        if (spell.level.hasOwnProperty(classname)) {
+          minlevel = Math.min(minlevel, spell.level[classname]);
+        }
+      }
+    }
 
-  // });
+    var container = $('<div />', {
+      'class': 'mdl-cell mdl-cell--12-col spell-card mdl-grid mdl-shadow--2dp spell-result-card',
+      'data-uid': spell.uid,
+      'data-level': minlevel
+    });
 
-  // $.ajax({
-  //   url: "/spells",
-  //   type: "get",
-  //   data: {},
-  //   headers: {"Authorization": "Bearer " + token},
-  //   dataType: "json",
-  //   beforeSend: function() {
+    container.append($('<div />', {
+      'class': 'mdl-cell mdl-cell--9-col spell-result-card-element'
+    }).append($('<div />', {
+      'class': 'spell-result-card-title',
+      'text': spell.name
+    })));
 
-  //   },
-  //   complete: function() {
+    var btn_container = $('<div />', {
+      'class': 'mdl-cell mdl-cell--3-col spell-result-card-element'
+    });
+    var btn = $('<button />', {
+      'class': 'mdl-button mdl-js-button mdl-button--icon mdl-button--colored spell-result-card-button'
+    }).append($('<i />', {
+      'class': 'material-icons',
+      'text': "trending_flat"
+    }));
 
-  //   },
-  //   statusCode: {
-  //     200: function(data) {
-  //       createSpellListDialogOptions(data);
-  //     }
-  //   }
-  // });
+    btn.click(function(event) {
+      event.stopPropagation();
+      var uid = $(this).parents(".spell-result-card").data("uid");
+      var name = $(this).parents(".spell-result-card").find(".spell-result-card-title").text();
+      var level = $(this).parents(".spell-result-card").data("level");
+      learnSpell(uid, name);
+    });
+
+    btn_container.append(btn);
+    container.append(btn_container);
+  });
+}
+
+function fetchAllSpells() {
+  $.get("/spells").then((data) => {
+    spells = data.map((spell) => { 
+      spell.data.uid = spell.id;
+      return spell.data;
+    });
+  });
 }
