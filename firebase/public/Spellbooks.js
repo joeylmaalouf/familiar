@@ -12,6 +12,7 @@ $(document).ready(function() {
 
   var selectedSpellUID = undefined;
   var selectedSpellName = undefined;
+  var selectedSpellLevel = undefined;
   $("#save-spellbook").click(function(event) {
     $("#save-spellbook").trigger("familiar.save-spellbook");
   });
@@ -33,15 +34,17 @@ $(document).ready(function() {
     $(this).click(function() {
       $("#spell-learn-drop").addClass("spell-learn-drop-active");
       selectedSpellUID = $(this).data("uid");
+      selectedSpellLevel = $(this).data("level");
       selectedSpellName = $(this).find(".spell-result-card-title").text();
     });
   });
 
   $("#spell-learn-drop").click(function() {
     $("#spell-learn-drop").removeClass("spell-learn-drop-active");
-    learnSpell(selectedSpellUID, selectedSpellName);
+    learnSpell(selectedSpellUID, selectedSpellName, 0, selectedSpellLevel);
     selectedSpellUID = undefined;
     selectedSpellName = undefined;
+    selectedSpellLevel = undefined;
   });
 
   if (!dialog.showModal) {
@@ -224,6 +227,7 @@ function deRenderSpellbook() {
 }
 
 function learnSpell(uid, name, count, level) {
+  console.log("Learning", level);
   count = count || 0;
   level = level || 0;
   if (!(uid in learnt_spells)) {
@@ -454,9 +458,13 @@ function displaySpellsOfList() {
   if (!spells) {
     return;
   }
+  $("#choose-class").text(selected_spell_lists.join(", "));
   var filtered_spells = spells.filter((spell) => {
-    for (classnames in selected_spell_lists) {
-      for (classname in classnames.split("/")) {
+    for (var i = 0; i < selected_spell_lists.length; i++) {
+      var classnames = selected_spell_lists[i];
+      for (var j = 0; j < classnames.split("/").length; j++) {
+        var classname = classnames.split("/")[j];
+        console.log(classname, spell.level, spell.level.hasOwnProperty(classname));
         if (spell.level.hasOwnProperty(classname)) {
           return true;
         }
@@ -472,10 +480,12 @@ function displaySpellsOfList() {
 function renderSpells(spells_to_render) {
   spells_to_render.forEach(spell => {
     var minlevel = 11;
-    for (classnames in selected_spell_lists) {
-      for (classname in classnames.split("/")) {
+    for (var i = 0; i < selected_spell_lists.length; i++) {
+      var classnames = selected_spell_lists[i];
+      for (var j = 0; j < classnames.split("/").length; j++) {
+        var classname = classnames.split("/")[j];
         if (spell.level.hasOwnProperty(classname)) {
-          minlevel = Math.min(minlevel, spell.level[classname]);
+          minlevel = Math.min(minlevel, Number.parseInt(spell.level[classname]));
         }
       }
     }
@@ -508,16 +518,19 @@ function renderSpells(spells_to_render) {
       var uid = $(this).parents(".spell-result-card").data("uid");
       var name = $(this).parents(".spell-result-card").find(".spell-result-card-title").text();
       var level = $(this).parents(".spell-result-card").data("level");
-      learnSpell(uid, name);
+      learnSpell(uid, name, 0, level);
     });
 
     btn_container.append(btn);
     container.append(btn_container);
+
+    $("#list-spells").append(container);
   });
 }
 
 function fetchAllSpells() {
   $.get("/spells").then((data) => {
+    console.log("rec", data);
     spells = data.map((spell) => { 
       spell.data.uid = spell.id;
       return spell.data;
