@@ -21,6 +21,10 @@
         "function": "spells"
       },
       {
+        "source": "/spells/lists",
+        "function": "spellLists"
+      },
+      {
         "source": "/spells/custom/**",
         "function": "customSpells"
       },
