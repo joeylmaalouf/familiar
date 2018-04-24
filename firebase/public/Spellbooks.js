@@ -5,6 +5,8 @@ $(document).ready(function() {
   var dialog = document.querySelector("#choose-class-dialog");
   var dialogButton = document.querySelector("#choose-class");
 
+  fetchSpellLists();
+
   var selectedSpellUID = undefined;
   var selectedSpellName = undefined;
   $("#save-spellbook").click(function(event) {
@@ -52,7 +54,7 @@ $(document).ready(function() {
   });
 
   document.querySelector("#ok-dialog").addEventListener('click', function() {
-    // save spell list selections
+    fetchSpellsOfList();
     dialog.close();
   });
 
@@ -396,4 +398,88 @@ function pushSpellbook(event) {
       }
     }
   });
+}
+
+function fetchSpellLists() {
+  $.ajax({
+    url: "/spells/lists",
+    type: "get",
+    headers: {"Authorization": "Bearer " + token},
+    dataType: "json",
+    beforeSend: function() {
+
+    },
+    complete: function() {
+
+    },
+    statusCode: {
+      200: function(data) {
+        createSpellListDialogOptions(data);
+      }
+    }
+  });
+}
+
+function createSpellListDialogOptions(spell_lists) {
+  $("#spell-list-selectors").empty();
+  spell_lists.forEach(function(listname) {
+    var custom_id = listname + "-selector";
+    var label_container = $('<label />', {
+      'class': 'mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect',
+      'for': custom_id
+    });
+
+    label_container.append($('<input />', {
+      'class': 'mdl-icon-toggle__input',
+      'type': 'checkbox',
+      'data-name': listname,
+      'id': custom_id
+    }));
+    label_container.append($('<i />', {
+      'class': 'mdl-icon-toggle__label material-icons filled-label',
+      'text': "label"
+    }));
+    label_container.append($('<i />', {
+      'class': 'mdl-icon-toggle__label material-icons empty-label',
+      'text': "label_outline"
+    }));
+    label_container.append($('<span />', {
+      'class': 'class-select-labels',
+      'text': listname
+    }));
+
+    $("#spell-list-selectors").append(label_container);
+  });
+}
+
+function fetchSpellsOfList() {
+  // var selected_lists = [];
+  // $("#spell-list-selectors").children(".mdl-icon-toggle__input:checkbox:checked").each(function(element) {
+  //   selected_lists.push(element.data("name"));
+  // });
+
+  // console.log("Selected Spell Lists", selected_lists);
+
+  // selected_lists.forEach(function(listname) {
+
+  // });
+
+  // $.ajax({
+  //   url: "/spells",
+  //   type: "get",
+  //   data: {},
+  //   headers: {"Authorization": "Bearer " + token},
+  //   dataType: "json",
+  //   beforeSend: function() {
+
+  //   },
+  //   complete: function() {
+
+  //   },
+  //   statusCode: {
+  //     200: function(data) {
+  //       createSpellListDialogOptions(data);
+  //     }
+  //   }
+  // });
 }
