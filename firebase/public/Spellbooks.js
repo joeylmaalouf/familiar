@@ -2,6 +2,8 @@ var token;
 var spells;
 var learnt_spells = {};
 var selected_spell_lists = [];
+var pending_selected_spell_lists = [];
+var selected_list_classes = [];
 
 $(document).ready(function() {
   var dialog = document.querySelector("#choose-class-dialog");
@@ -56,10 +58,14 @@ $(document).ready(function() {
   });
 
   document.querySelector("#close-dialog").addEventListener('click', function() {
+    pending_selected_spell_lists = selected_spell_lists.slice();
+    resetToPendingSelections();
     dialog.close();
   });
 
   document.querySelector("#ok-dialog").addEventListener('click', function() {
+    selected_spell_lists = pending_selected_spell_lists.slice();
+    splitJointClassLists();
     displaySpellsOfList();
     dialog.close();
   });
@@ -85,6 +91,10 @@ $(document).ready(function() {
     } else {
       // Do nothing
     }
+  });
+
+  document.getElementById("spellsearch").addEventListener("input", function (e) {
+    displaySpellsOfName(this.value);
   });
 
   firebase.auth().onAuthStateChanged(user => {
@@ -166,9 +176,6 @@ function createSpellBookTokens(books) {
     var card_actions = $('<div />', {
       "class": 'mdl-card__actions mdl-card--border'
     });
-    // card_actions.append($('<div />', {
-    //   "class": 'mdl-layout-spacer'
-    // }));
     var delete_button = $('<button />', {
       "class": 'mdl-button mdl-js-button mdl-button--icon mdl-button--colored'
     });
@@ -227,7 +234,6 @@ function deRenderSpellbook() {
 }
 
 function learnSpell(uid, name, count, level) {
-  console.log("Learning", level);
   count = count || 0;
   level = level || 0;
   if (!(uid in learnt_spells)) {
@@ -402,7 +408,7 @@ function createSpellListDialogOptions(spell_lists) {
   $("#spell-list-selectors-1").empty();
   $("#spell-list-selectors-2").empty();
   spell_lists.forEach(function(listname, index) {
-    var custom_id = listname + "-selector";
+    var custom_id = `class-spell-list-${listname}-selector`;
     var label_container = $('<label />', {
       'class': 'spell-list-selector mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect',
       'for': custom_id
@@ -442,11 +448,11 @@ function createSpellListDialogOptions(spell_lists) {
       if ($(this).find('input').is(':checked')) {
         $(this).find('.filled-label').show();
         $(this).find('.empty-label').hide();
-        selected_spell_lists.push(listname);
+        pending_selected_spell_lists.push(listname);
       } else {
         $(this).find('.filled-label').hide();
         $(this).find('.empty-label').show();
-        selected_spell_lists.remove(listname);
+        pending_selected_spell_lists.remove(listname);
       }
     });
 
@@ -454,39 +460,75 @@ function createSpellListDialogOptions(spell_lists) {
   });
 }
 
+function resetToPendingSelections() {
+  $('[id^=class-spell-list-]').each(function(index, element) {
+    var listname = element.id.split('-')[3];
+    var container = $(element).parent();
+    var checked = pending_selected_spell_lists.includes(listname);
+    var to_show = checked ? '.filled-label' : '.empty-label';
+    var to_hide = checked ? '.empty-label' : '.filled-label';
+    container.find(to_show).show();
+    container.find(to_hide).hide();
+  });
+}
+
+function splitJointClassLists() {
+  selected_list_classes = [];
+  selected_spell_lists.forEach(function(listname) {
+    if (listname.includes("/")) {
+      listname.split("/").forEach(function(classname) {
+        selected_list_classes.push(classname);
+      });
+    }
+    else {
+      selected_list_classes.push(listname);
+    }
+  });
+}
+
+function filterSpellsToLists() {
+  if (!spells) {
+    return;
+  }
+  return spells.filter((spell) => {
+    for (var i = 0; i < selected_list_classes.length; i++) {
+      if (spell.level.hasOwnProperty(selected_list_classes[i])) {
+        return true;
+      }
+    }
+    return false;
+  });
+}
+
 function displaySpellsOfList() {
   if (!spells) {
     return;
   }
-  $("#choose-class").text(selected_spell_lists.join(", "));
-  var filtered_spells = spells.filter((spell) => {
-    for (var i = 0; i < selected_spell_lists.length; i++) {
-      var classnames = selected_spell_lists[i];
-      for (var j = 0; j < classnames.split("/").length; j++) {
-        var classname = classnames.split("/")[j];
-        console.log(classname, spell.level, spell.level.hasOwnProperty(classname));
-        if (spell.level.hasOwnProperty(classname)) {
-          return true;
-        }
-        return false;
-      }
-    }
-  });
-  console.log("Filtered Spells List", filtered_spells);
+  $("#selected-lists").text(`Spell lists: ${selected_spell_lists ? selected_spell_lists.join(", ") : "none"}`);
+  var filtered_spells = filterSpellsToLists();
+  renderSpells(filtered_spells);
+}
 
+function displaySpellsOfName(name) {
+  if (!spells) {
+    return;
+  }
+  name = name.toUpperCase();
+  var filtered_spells = filterSpellsToLists().filter((spell) => {
+    return spell.name.toUpperCase().includes(name);
+  });
   renderSpells(filtered_spells);
 }
 
 function renderSpells(spells_to_render) {
-  spells_to_render.forEach(spell => {
-    var minlevel = 11;
-    for (var i = 0; i < selected_spell_lists.length; i++) {
-      var classnames = selected_spell_lists[i];
-      for (var j = 0; j < classnames.split("/").length; j++) {
-        var classname = classnames.split("/")[j];
-        if (spell.level.hasOwnProperty(classname)) {
-          minlevel = Math.min(minlevel, Number.parseInt(spell.level[classname]));
-        }
+  $("#list-spells").empty();
+
+  spells_to_render.forEach((spell) => {
+    var minlevel = 10;
+    for (var i = 0; i < selected_list_classes.length; i++) {
+      var classname = selected_list_classes[i];
+      if (spell.level.hasOwnProperty(classname)) {
+        minlevel = Math.min(minlevel, Number.parseInt(spell.level[classname]));
       }
     }
 
@@ -530,7 +572,6 @@ function renderSpells(spells_to_render) {
 
 function fetchAllSpells() {
   $.get("/spells").then((data) => {
-    console.log("rec", data);
     spells = data.map((spell) => { 
       spell.data.uid = spell.id;
       return spell.data;
