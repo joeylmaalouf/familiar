@@ -7,7 +7,6 @@ var spellCardInfo;
 var filterToggle;
 var filterBody;
 var filterFields;
-var token;
 
 $(document).ready(() => {
   spellList      = $("#spell-list");
@@ -22,42 +21,43 @@ $(document).ready(() => {
   spellCard.hide();
   closeFilters();
 
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdToken().then((token) => {
+        $.ajax({
+          url: "/spells",
+          headers : { "Authorization": "Bearer " + token }
+        })
+          .then((data) => {
+            spells = data.map((spell) => { return spell.data; });
+            $.ajax({
+              "url"     : "/spells/custom/get",
+              "type"    : "post",
+              "data"    : {},
+              "headers" : { "Authorization": "Bearer " + token },
+              "dataType": "json"
+            })
+          .done((data) => {
+            if (data.success) {
+              Array.prototype.push.apply(spells, data.data.spells);
+            }
+            spells.sort((a, b) => {
+              return a.name.toUpperCase().charCodeAt(0) - b.name.toUpperCase().charCodeAt(0);
+            });
+            $("#loading-spinner").hide();
+            listSpells(spells);
+          });
+        });
+      });
+    }
+  });
+
   $("#close-spell").click((event) => {
     spellCard.fadeOut();
   });
 
   $("#filter-button").click((event) => {
     applyFilters(spells);
-  });
-
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      user.getIdToken().then(myToken => {
-        token = myToken;
-      });
-    }
-  });
-
-  $.get("/spells")
-    .then((data) => {
-      spells = data.map((spell) => { return spell.data; });
-      $.ajax({
-        "url"     : "/spells/custom/get",
-        "type"    : "post",
-        "data"    : {},
-        headers: {"Authorization": "Bearer " + token},
-        "dataType": "json"
-    })
-    .done((data) => {
-      if (data.success) {
-        Array.prototype.push.apply(spells, data.data.spells);
-      }
-      spells.sort((a, b) => {
-        return a.name.toUpperCase().charCodeAt(0) - b.name.toUpperCase().charCodeAt(0);
-      });
-      $("#loading-spinner").hide();
-      listSpells(spells);
-    });
   });
 });
 

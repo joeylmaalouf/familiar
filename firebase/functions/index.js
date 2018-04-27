@@ -258,6 +258,22 @@ function addSpell(spell, batch) {
             spellres: spell.spellres,
             target: spell.target
           });
+        } else {
+          var existingSpellRef = db.collection("spells").doc(snapshot.id);
+          batch.update(existingSpellRef, {
+            casttime: spell.casttime,
+            components: spell.components,
+            level: spell.level,
+            link: spell.link,
+            longdesc: spell.longdesc,
+            name: spell.name,
+            range: spell.range,
+            restriction: spell.restriction,
+            save: spell.save,
+            school: spell.school,
+            shortdesc: spell.shortdesc,
+            spellres: spell.spellres,
+            target: spell.target
         }
         resolve();
         return;
