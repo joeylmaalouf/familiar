@@ -37,7 +37,7 @@ spell_defaults = {
 spell_list_regex = r'<b><a href="(?P<link>.*?)">(?:<img.*?>\s?)*(?P<name>.*?)(?:</b><sup>.</sup><b>)*</a></b>: (?P<shortdesc>.*?)<br />'
 
 spell_regexes = [
-    r'<h1 class="title">(?:<img.*?>)* ?(?P<name>.*?)</h1>',
+    r'<h1 class="title">(?:<img.*?> ?)* ?(?P<name>.*?)</h1>',
     r'<b>School</b> (?P<school>.*?)(?:;|<)',
     r'<b>Level</b> (?P<level>.*?)(?: (?<=\d )\((?P<restriction>.*?)\))?<',
     r'<b>Casting Time</b> (?P<casttime>.*?)<',
@@ -84,19 +84,32 @@ def process_spell(spell):
     return spell
 
 def spell_exceptions(spells):
+    # [Controlled] Fireball and Absorb Rune I-III are the only unique spells
+    # to share a page with others, so we have to update its info for real,
+    # instead of using the initially parsed data
+
+    exception_spells = {
+        'Controlled Fireball': 'https://pastebin.com/raw/TdcXxwJa',
+        'Absorb Rune II'     : 'https://pastebin.com/raw/Yxwfeuuh',
+        'Absorb Rune III'    : 'https://pastebin.com/raw/bLVpevXF'
+    }
+
+    def parse_same_page_spell(index, spell, text_link):
+        updated = spell_defaults.copy()
+        updated['link'] = spell['link']
+        updated['shortdesc'] = spell['shortdesc']
+        page = requests.get(text_link).text.replace('\n', '').replace('\r', '')
+        for spell_regex in spell_regexes:
+            spell_result = re.compile(spell_regex).search(page)
+            if spell_result:
+                updated.update(spell_result.groupdict())
+        spells[index] = process_spell(updated)
+
     for index, spell in enumerate(spells):
-        # Controlled Fireball is the only unique spell to share a page with another (Fireball)
-        # so we have to update its info for real, instead of using the Fireball data
-        if 'Controlled Fireball' in spell['link']:
-            updated = spell_defaults.copy()
-            updated['link'] = spell['link']
-            updated['shortdesc'] = spell['shortdesc']
-            page = requests.get('https://pastebin.com/raw/TdcXxwJa').text.replace('\n', '').replace('\r', '')
-            for spell_regex in spell_regexes:
-                spell_result = re.compile(spell_regex).search(page)
-                if spell_result:
-                    updated.update(spell_result.groupdict())
-            spells[index] = updated
+        for exception in exception_spells:
+            if exception in spell['link']:
+                parse_same_page_spell(index, spell, exception_spells[exception])
+
     return spells
 
 SPELL = {

@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="outline.css">
     <link rel="stylesheet" href="dialog-polyfill.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="Spellbooks.css">
     <script type="text/javascript" src="outline.js"></script>
     <script type="text/javascript" src="dialog-polyfill.js"></script>
     <script type="text/javascript" src="Spellbooks.js"></script>
@@ -136,29 +137,22 @@
               <div class="mdl-cell mdl-cell--3-col mdl-grid mdl-cell--top">
                 <div class="mdl-cell mdl-cell--12-col mdl-grid">
                   <button class="mdl-cell mdl-cell--12-col mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="choose-class">
-                    Wizard/Sourcerer
+                    Select Class
                   </button>
-                  <dialog class="mdl-dialog" id="choose-class-dialog">
+                  <dialog class="mdl-dialog spell-list-dialog" id="choose-class-dialog">
                     <h4 class="mdl-dialog__title">Choose spell lists</h4>
-                    <div class="mdl-dialog__content">
-                      <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="icon-toggle-1">
-                        <input type="checkbox" id="icon-toggle-1" class="mdl-icon-toggle__input" checked>
-                        <i class="mdl-icon-toggle__label material-icons filled-label">label</i>
-                        <i class="mdl-icon-toggle__label material-icons empty-label">label_outline</i>
-                        <span class="class-select-labels">Wizard/Sourcerer</span>
-                      </label>
-                      <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="icon-toggle-2">
-                        <input type="checkbox" id="icon-toggle-2" class="mdl-icon-toggle__input">
-                        <i class="mdl-icon-toggle__label material-icons filled-label">label</i>
-                        <i class="mdl-icon-toggle__label material-icons empty-label">label_outline</i>
-                        <span class="class-select-labels">Cleric/Oracle</span>
-                      </label>
+                    <div class="mdl-dialog__content mdl-grid">
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-1"></div>
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-2"></div>
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-3"></div>
+                      <div class="mdl-cell mdl-cell--3-col marginless paddingless" id="spell-list-selectors-4"></div>
                     </div>
                     <div class="mdl-dialog__actions">
                       <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="ok-dialog">Ok</button>
                       <button type="button" class="mdl-button" id="close-dialog">Cancel</button>
                     </div>
-                  </dialog> 
+                  </dialog>
+                  <p id="selected-lists">Spell lists: none</p>
 
                   <div class="mdl-textfield mdl-js-textfield">
                     <input class="mdl-textfield__input" type="text" id="spellsearch">
@@ -166,28 +160,7 @@
                   </div>
                 </div>
 
-                <div class="mdl-cell mdl-cell--12-col mdl-grid">
-                  <div class="mdl-cell mdl-cell--12-col spell-card mdl-grid mdl-shadow--2dp spell-result-card" data-uid="21837192837" data-level="1">
-                    <div class="mdl-cell mdl-cell--9-col spell-result-card-element">
-                      <div class="spell-result-card-title">Buttering Blast</div>
-                    </div>
-                    <div class="mdl-cell mdl-cell--3-col spell-result-card-element">
-                      <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored spell-result-card-button">
-                        <i class="material-icons">trending_flat</i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="mdl-cell mdl-cell--12-col spell-card mdl-grid mdl-shadow--2dp spell-result-card" data-uid="21387123871237" data-level="3">
-                    <div class="mdl-cell mdl-cell--9-col spell-result-card-element">
-                      <div class="spell-result-card-title">Wall of Farce</div>
-                    </div>
-                    <div class="mdl-cell mdl-cell--3-col spell-result-card-element">
-                      <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored spell-result-card-button">
-                        <i class="material-icons">trending_flat</i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <div class="mdl-cell mdl-cell--12-col mdl-grid" id="list-spells"></div>
               </div>
 
               <div class="mdl-cell mdl-cell--9-col mdl-grid">
@@ -199,9 +172,7 @@
             </div>
 
             <div class="mdl-cell mdl-cell--12-col mdl-grid" id="prepare-spells" style="display: none;">
-              <div class="mdl-cell mdl-cell--3-col mdl-grid">
-
-              </div>
+              <div class="mdl-cell mdl-cell--3-col mdl-grid"></div>
 
               <div class="mdl-cell mdl-cell--9-col mdl-grid" id="prepped-spells-list">
                 <h4>Prepared Spells</h4>

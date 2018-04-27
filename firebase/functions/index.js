@@ -250,6 +250,19 @@ customSpellsApp.post("/spells/custom/add", customSpells.add.bind(null, db));
 customSpellsApp.post("/spells/custom/get", customSpells.get.bind(null, db));
 exports.customSpells = functions.https.onRequest(customSpellsApp);
 
+const spellListsApp = express();
+spellListsApp.get("/spells/lists", (req, res) => {
+  res.json([
+    "bard", "cleric/oracle", "druid", "paladin", "ranger", "sorcerer/wizard", // core      classes
+    "alchemist", "inquisitor", "magus", "summoner", "witch",                  // base      classes
+    "antipaladin",                                                            // alternate classes
+    "bloodrager", "shaman",                                                   // hybrid    classes
+    "medium", "mesmerist", "occultist", "psychic", "spiritualist",            // occult    classes
+    "summoner (unchained)"                                                    // unchained classes
+  ]);
+});
+exports.spellLists = functions.https.onRequest(spellListsApp);
+
 function logUserAction(user, msg) {
   console.log("[" + user.uid + " (" + user.name + "}] "  + msg);
 }
