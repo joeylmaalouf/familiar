@@ -32,14 +32,17 @@ $(document).ready(function() {
     if (spell_data != null) {
       $("#spinner").show();
       $("#file-chooser").hide();
-      var chunk_size = 50;
-      console.log("Making " + Math.ceil(spell_data.length / chunk_size) + " requests...");
+      var chunk_size = 250;
+      var spliced_data = [];
       for (var i = 0; i < Math.ceil(spell_data.length / chunk_size); i++) {
-        console.log("Posting " + i*chunk_size + " - " + Math.min(((i+1)*chunk_size)-1) + " ...");
+        spliced_data.push(spell_data.slice(i*chunk_size, Math.min(((i+1)*chunk_size)-1, spell_data.length-1)));
+      }
+
+      spliced_data.forEach(function(d) {
         $.ajax({
           url: "/spells",
           type: "POST",
-          data: JSON.stringify({"spells": spell_data.splice(i*chunk_size, Math.min(((i+1)*chunk_size)-1, spell_data.length-1))}),
+          data: JSON.stringify({"spells": d}),
           dataType: "json",
           contentType: "application/json",
           headers: {"Authorization": "Bearer " + token},
@@ -59,7 +62,7 @@ $(document).ready(function() {
             $("#error").show();
           }
         });
-      }
+      });
     }
   });
 
@@ -73,7 +76,6 @@ $(document).ready(function() {
 });
 
 function displaySpellData(data) {
-  console.log(data);
   var list = $("<ul>");
   if ($.isArray(data)) {
     $.each(data, (index, spell) => {
