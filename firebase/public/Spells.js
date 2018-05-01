@@ -143,6 +143,8 @@ var openFilters = () => {
   .click(closeFilters);
 
   filterBody.show();
+
+  spellList.css("height", "20vh");
 };
 
 var closeFilters = () => {
@@ -151,6 +153,8 @@ var closeFilters = () => {
   .click(openFilters);
 
   filterBody.hide();
+
+  spellList.css("height", "75vh");
 };
 
 var applyFilters = (spells) => {
@@ -182,7 +186,7 @@ var applyFilters = (spells) => {
             if (fields.includes("level")) {
               return Object.keys(spell.level)
               .filter((class_) => class_.toUpperCase().includes(filters.class))
-              .some((class_) => spell.level[class_].includes(filters.level));
+              .some((class_) => spell.level[class_].toString().includes(filters.level));
             }
             else {
               return Object.keys(spell.level)
@@ -193,7 +197,7 @@ var applyFilters = (spells) => {
               return true; // actual logic taken care of above
             }
             else {
-              return Object.values(spell.level).includes(filters.level);
+              return Object.values(spell.level).toString().includes(filters.level);
             }
           default:
             return spell[field].toUpperCase().includes(filters[field]);
