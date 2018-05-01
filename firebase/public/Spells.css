@@ -36,6 +36,11 @@
   width: 100%;
 }
 
+.spell-card {
+  cursor: pointer;
+  width: calc(100% - 8px);
+}
+
 #filter-header {
   font-size: 16px;
   margin: 0px;
@@ -56,4 +61,10 @@
   position: absolute;
   right: 8px;
   top: 8px;
+}
+
+#spell-list {
+  height: 75vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }

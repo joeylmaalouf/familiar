@@ -87,8 +87,7 @@ var prepareSpell = (spell) => {
 var addCard = (spell) => {
   spellList.append(
     $("<div>", {
-      "class": "mdl-card mdl-shadow--4dp",
-      "style": "cursor: pointer;"
+      "class": "mdl-card mdl-shadow--4dp spell-card"
     })
     .append(
       $("<div>", {

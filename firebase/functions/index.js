@@ -137,7 +137,7 @@ spellbooksApp.post('/:uid', (req, res) => {
       });
       return true;
     })
-    .then(function () {
+    .then(() => {
       return batch.commit()
         .then(batch_res => {
           logUserAction(req.user, "Saved spellbook " + spellbook_uid);
@@ -208,9 +208,9 @@ spellsApp.post("/", (request, response) => {
     }
 
     Promise.all(promiseArray)
-      .then(function() {
+      .then(() => {
         return batch.commit()
-          .then(function() {
+          .then(() => {
             return response.json({
               success: true,
               error: ""
@@ -236,7 +236,7 @@ main.use('/spells', spellsApp);
 exports.main = functions.https.onRequest(main);
 
 function addSpell(spell, batch) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     // Check if spell exists by name
     db.collection("spells").where("name", "==", spell.name).get()
       .then(snapshot => {
