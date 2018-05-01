@@ -274,6 +274,7 @@ function addSpell(spell, batch) {
             shortdesc: spell.shortdesc,
             spellres: spell.spellres,
             target: spell.target
+          });
         }
         resolve();
         return;
