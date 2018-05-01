@@ -24,15 +24,19 @@ $(document).ready(() => {
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       user.getIdToken().then((token) => {
-        $.get("/spells").then((data) => {
-          spells = data.map((spell) => { return spell.data; });
-          $.ajax({
-            "url"     : "/spells/custom/get",
-            "type"    : "post",
-            "data"    : {},
-            "headers" : { "Authorization": "Bearer " + token },
-            "dataType": "json"
-          })
+        $.ajax({
+          url: "/spells",
+          headers : { "Authorization": "Bearer " + token }
+        })
+          .then((data) => {
+            spells = data.map((spell) => { return spell.data; });
+            $.ajax({
+              "url"     : "/spells/custom/get",
+              "type"    : "post",
+              "data"    : {},
+              "headers" : { "Authorization": "Bearer " + token },
+              "dataType": "json"
+            })
           .done((data) => {
             if (data.success) {
               Array.prototype.push.apply(spells, data.data.spells);

@@ -31,8 +31,8 @@ const firebaseValidateMiddleware = (req, res, next) => {
 };
 
 const prepareApp = (app) => {
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({limit: '50mb'}));
+  app.use(bodyParser.urlencoded({limit: '50mb', parameterLimit: 100000000, extended: true}));
   app.use(cookieParser);
   app.use(firebaseValidateMiddleware);
   return app;
@@ -154,15 +154,10 @@ spellbooksApp.post('/:uid', (req, res) => {
     });
 });
 
-const main = express();
-main.use('/spellbooks', spellbooksApp);
-exports.main = functions.https.onRequest(main);
-
-exports.spells = functions.https.onRequest((request, response) => {
-  if (request.method === "GET") {
-
-    //Get the full list of spells
-    db.collection("spells").get()
+const spellsApp = prepareApp(express());
+spellsApp.get("/", (request, response) => {
+  //Get the full list of spells
+  db.collection("spells").get()
     .then(snapshot => {
       var all_spells = [];
       snapshot.forEach(doc => {
@@ -198,46 +193,95 @@ exports.spells = functions.https.onRequest((request, response) => {
         console.error(err);
         response.status(500).send(err);
     });
-  }
-  else if (request.method === "POST") {
-    var spells = request.body.spells;
-    if (spells !== undefined) {
-      if (Array.isArray(spells)) {
-        spells.forEach(spell => {
-          addSpell(spell);
-        });
-      } else {
-        addSpell(spells);
+});
+spellsApp.post("/", (request, response) => {
+  var spells = request.body.spells;
+  if (spells !== undefined) {
+    var batch = db.batch();
+    var promiseArray = [];
+    if (Array.isArray(spells)) {
+      for (var i = 0; i < spells.length; i++) {
+        promiseArray.push(addSpell(spells[i], batch));
       }
-
-      response.json({
-        success: true,
-        error: ""
-      });
     } else {
-      response.json({
-        success: false,
-        error: "No spell data detected."
-      });
+      promiseArray.push(addSpell(spells, batch));
     }
+
+    Promise.all(promiseArray)
+      .then(function() {
+        return batch.commit()
+          .then(function() {
+            return response.json({
+              success: true,
+              error: ""
+            });
+          })
+          .catch(err => {
+            console.error(err);
+          });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  } else {
+    response.json({
+      success: false,
+      error: "No spell data detected."
+    });
   }
 });
+const main = express();
+main.use('/spellbooks', spellbooksApp);
+main.use('/spells', spellsApp);
+exports.main = functions.https.onRequest(main);
 
-function addSpell(spell) {
-  db.collection("spells").add({
-    casttime: spell.casttime,
-    components: spell.components,
-    level: spell.level,
-    link: spell.link,
-    longdesc: spell.longdesc,
-    name: spell.name,
-    range: spell.range,
-    restriction: spell.restriction,
-    save: spell.save,
-    school: spell.school,
-    shortdesc: spell.shortdesc,
-    spellres: spell.spellres,
-    target: spell.target
+function addSpell(spell, batch) {
+  return new Promise(function(resolve, reject) {
+    // Check if spell exists by name
+    db.collection("spells").where("name", "==", spell.name).get()
+      .then(snapshot => {
+        if (!snapshot.exists) {
+          // No spell with that name exists in database
+          var newSpellRef = db.collection("spells").doc();
+          batch.set(newSpellRef, {
+            casttime: spell.casttime,
+            components: spell.components,
+            level: spell.level,
+            link: spell.link,
+            longdesc: spell.longdesc,
+            name: spell.name,
+            range: spell.range,
+            restriction: spell.restriction,
+            save: spell.save,
+            school: spell.school,
+            shortdesc: spell.shortdesc,
+            spellres: spell.spellres,
+            target: spell.target
+          });
+        } else {
+          var existingSpellRef = db.collection("spells").doc(snapshot.id);
+          batch.update(existingSpellRef, {
+            casttime: spell.casttime,
+            components: spell.components,
+            level: spell.level,
+            link: spell.link,
+            longdesc: spell.longdesc,
+            name: spell.name,
+            range: spell.range,
+            restriction: spell.restriction,
+            save: spell.save,
+            school: spell.school,
+            shortdesc: spell.shortdesc,
+            spellres: spell.spellres,
+            target: spell.target
+        }
+        resolve();
+        return;
+      })
+      .catch(err => {
+        console.error(err);
+        resolve();
+      });
   });
 }
 
