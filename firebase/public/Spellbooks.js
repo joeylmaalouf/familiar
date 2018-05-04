@@ -6,11 +6,19 @@ var pending_selected_spell_lists = [];
 var selected_list_classes = [];
 
 $(document).ready(function() {
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      user.getIdToken().then(myToken => {
+        token = myToken;
+        fetchUserSpellbooks();
+        fetchSpellLists();
+        fetchAllSpells();
+      });
+    }
+  });
+
   var dialog = document.querySelector("#choose-class-dialog");
   var dialogButton = document.querySelector("#choose-class");
-
-  fetchSpellLists();
-  fetchAllSpells();
 
   var selectedSpellUID = undefined;
   var selectedSpellName = undefined;
@@ -95,15 +103,6 @@ $(document).ready(function() {
 
   document.getElementById("spellsearch").addEventListener("input", function (e) {
     displaySpellsOfName(this.value);
-  });
-
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      user.getIdToken().then(myToken => {
-        token = myToken;
-        fetchUserSpellbooks();
-      });
-    }
   });
 });
 
@@ -390,17 +389,26 @@ function fetchSpellLists() {
     type: "get",
     headers: {"Authorization": "Bearer " + token},
     dataType: "json",
-    beforeSend: function() {
-
-    },
-    complete: function() {
-
-    },
     statusCode: {
       200: function(data) {
         createSpellListDialogOptions(data);
       }
     }
+  });
+}
+
+function fetchAllSpells() {
+  $.ajax({
+    url: "/spells",
+    type: "get",
+    headers: {"Authorization": "Bearer " + token},
+    dataType: "json",
+  })
+  .then((data) => {
+    spells = data.map((spell) => {
+      spell.data.uid = spell.id;
+      return spell.data;
+    });
   });
 }
 
@@ -567,14 +575,5 @@ function renderSpells(spells_to_render) {
     container.append(btn_container);
 
     $("#list-spells").append(container);
-  });
-}
-
-function fetchAllSpells() {
-  $.get("/spells").then((data) => {
-    spells = data.map((spell) => { 
-      spell.data.uid = spell.id;
-      return spell.data;
-    });
   });
 }
